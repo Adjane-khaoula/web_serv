@@ -130,12 +130,5 @@ int main(int argc, char **argv) {
 		// for (auto it = req.headers.begin(); it != req.headers.end(); it++) {
 		// 	std::cout << "\033[32m" << it->first << ' ' << it->second << "\033[0m" << std::endl;
 		// }
-
-		// HttpResponse res;
-		// res.code = 200;
-		// res.content = "{ \"message\": \"ft_webserv yora7ibo bikom\" }";
-		// res.headers["Content-Type"] = "text/json";
-		// std::string res_str = generate_http_response(res);
-		// assert(send(fd, res_str.c_str(), res_str.length(), 0) == (ssize_t)res_str.length());
 	}
 }

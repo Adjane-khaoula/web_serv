@@ -24,7 +24,8 @@ int ft_atof(std::string s) {
 	return (sign * nbr);
 }
 
-std::string read_File(std::string& Path) {
+std::string read_File(std::string Path)
+{
 	std::ifstream file(Path);
 	std::stringstream buffer;
 	buffer << file.rdbuf();
@@ -34,7 +35,7 @@ std::string read_File(std::string& Path) {
 	int	check_req_well_formed(HttpRequest &req)
 	{
 		std::map<std::string, std::string>::iterator it;
-		std::string client_max_body_size = "1M";//the maximum size limit in megabytes (MB) for the request body. 
+		std::string client_max_body_size = "10M";//the maximum size limit in megabytes (MB) for the request body.
 		std::string client_max_body = client_max_body_size.substr(0, client_max_body_size.find("M"));//10
 
 		it = req.headers.find("Transfer-Encoding");
@@ -56,43 +57,35 @@ std::string read_File(std::string& Path) {
 		return(200);
 	}
 
-	// int	check_location()
-	// {
-
-	// }
 
 	std::string generate_http_response(HttpResponse &res) {
-	std::stringstream res_str;
+		std::stringstream res_str;
 
-    time_t t = time(NULL);
-    char mbstr[100];
- 
-    strftime(mbstr, sizeof(mbstr), "%a, %d %b %Y %T GMT", localtime(&t));
+    	// time_t t = time(NULL);
+    	// char mbstr[100];
+	
+    	// strftime(mbstr, sizeof(mbstr), "%a, %d %b %Y %T GMT", localtime(&t));
 
-	res.headers["Server"] = "ft_webserv/0.1";
-	res.headers["Date"] = mbstr;
-	res.headers["Connection"] = "keep-alive";
-	res.headers["Content-Length"] = std::to_string(res.content.length());
+		// res.headers["Date"] = mbstr;
+		// res.headers["Server"] = "ft_webserv/0.1";
+		// res.headers["Connection"] = "keep-alive";
+		// res.headers["Content-Length"] = std::to_string(res.content.length());
 
-	// Last-Modified: Tue, 28 Mar 2023 15:01:54 GMT
-	// ETag: "64230162-267"
+		// Last-Modified: Tue, 28 Mar 2023 15:01:54 GMT
+		// ETag: "64230162-267"
 
-	res_str << res.version << " " << res.code << res.reason_phrase << HTTP_DEL;
-	for (std::map<std::string, std::string>::iterator it = res.headers.begin(); it != res.headers.end(); it++)
-		res_str << it->first << ": " << it->second << HTTP_DEL;
+		res_str << res.version << " " << res.code<< " " << res.reason_phrase << HTTP_DEL;
+		for (std::map<std::string, std::string>::iterator it = res.headers.begin(); it != res.headers.end(); it++)
+			res_str << it->first << ": " << it->second << HTTP_DEL;
 
-	res_str << HTTP_DEL;
-	res_str << res.content;
-	return res_str.str();
+		res_str << HTTP_DEL;
+		res_str << res.content;
+		return res_str.str();
 }
 
 	HttpResponse response_Http_Request(int status_code, HttpRequest& request) {
 		HttpResponse response;
-		// Set the HTTP version
 		response.version = request.version;
-		// Process the request and generate the appropriate response
-		// Here, you can implement your business logic based on the request's method, URL, etc.	
-		// Set the status code, reason phrase, and content
 		response.code = status_code;
 		switch(status_code) {
 			case 501 :
@@ -121,11 +114,7 @@ std::string read_File(std::string& Path) {
 				response.headers["Content-Type"] = "text/html";
 				break ;
 		}
-		// response.content = request.content;
-		// response.content = "Hello, World!";
-		// Set any desired headers
 		response.headers["Content-Length"] = std::to_string(response.content.length());
-		// response.headers["Content-Type"] = "text/html";
 		return response;
 	}
 

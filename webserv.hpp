@@ -62,5 +62,6 @@ void dump_config(Config config);
 //---------------------------------------------------------------------------
 int	check_req_well_formed(HttpRequest &req);
 HttpResponse response_Http_Request(int status_code, HttpRequest& request);
+std::string read_File(std::string Path);
 
 #endif // WEBSERV
