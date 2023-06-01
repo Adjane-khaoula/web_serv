@@ -1,8 +1,43 @@
 	#include "webserv.hpp"
+	#include "config.hpp"
 
+int ft_atof(std::string s) {
+	int					sign = 1;
+	int				  /*frac = 0.1,*/ nbr = 0;
+	std::string::iterator it;
+
+	for (it = s.begin(); *it == ' '; ++it)
+		;
+	if ((*it == '+' || *it == '-') && isdigit(*(it + 1)))
+	{
+		if (*it == '-')
+			sign = -1;
+		it++;
+	}
+	else if (*it == '+' && !isdigit(*(it + 1)))
+		return (-1);
+	while (it != s.end() && isdigit(*it))
+		nbr = nbr * 10 + (*(it++) - '0');
+	// if (*it == '.' || *it == ',') {
+	// 	*it++;
+	// 	while (it != s.end()) {
+	// 		if (!isdigit(*it))
+	// 			return (-1);
+	// 		nbr += ((*it) - '0') * frac;
+	// 		frac *= 0.1;
+	// 		it++;
+	// 	}
+	// }
+	// else if (*it && !isdigit(*it))
+	// 	return(-1);
+	return (sign * nbr);
+}
+//1048576
 	int	check_req_well_formed(HttpRequest &req)
 	{
 		std::map<std::string, std::string>::iterator it;
+		std::string client_max_body_size = "10M";//the maximum size limit in megabytes (MB) for the request body. 
+		std::string client_max_body = client_max_body_size.substr(0, client_max_body_size.find("M"));//10
 
 		it = req.headers.find("Transfer-Encoding");
 		if (it != req.headers.end() && it->second.erase(0, 1) != "chunked")
@@ -10,13 +45,16 @@
 		if (it == req.headers.end()
 			&& req.headers.find("Content-Length") == req.headers.end() && req.method == "POST")
 			return(400);//Bad Request
-		// std::cout << "{" << req.url << "}" << std::endl;
 		if (req.url.find_first_not_of("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-._~:/?#[]@!$&'()*+,;=%")
 				!= std::string::npos)
 			return(40);//Bad Request
 		if (req.url.length() > 2048)
 			return (414);//Request-URI Too Long
-		// if (req.headers["Content-Length"] > )
+		std::cout << "------------" << ft_atof(client_max_body) << std::endl;
+		std::cout << "*************"<< 1024 * 1024 << std::endl;
+		std::cout << "*************"<< ft_atof(req.headers["Content-Length"]) << std::endl;
+		if (ft_atof(req.headers["Content-Length"]) > ft_atof(client_max_body) * 1024 * 1024)
+			return (413); //413 Request Entity Too Large
 		return(10);
 	}
 	
