@@ -4,6 +4,7 @@
 #include <string>
 #include <map>
 #include <vector>
+#include <cassert>
 #include "config.hpp"
 #include <iostream>
 
@@ -55,8 +56,11 @@ int init_watchlist();
 void watchlist_add_fd(int efd, int fd, uint32_t events);
 void watchlist_del_fd(int efd, int fd);
 int watchlist_wait_fd(int efd);
+std::string trim(std::string s);
+void parse_config(std::string config_file);
+void dump_config(Config config);
 //---------------------------------------------------------------------------
 int	check_req_well_formed(HttpRequest &req);
-HttpResponse processHttpRequest(const HttpRequest& request);
+HttpResponse response_Http_Request(int status_code, HttpRequest& request);
 
 #endif // WEBSERV
