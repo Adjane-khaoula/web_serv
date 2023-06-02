@@ -31,7 +31,6 @@ class HttpRequest {
 		std::string url;
 		std::string version;
 		std::map<std::string, std::string> headers;
-
 		std::string content;
 };
 
@@ -60,8 +59,8 @@ std::string trim(std::string s);
 void parse_config(std::string config_file);
 void dump_config(Config config);
 //---------------------------------------------------------------------------
-int	check_req_well_formed(HttpRequest &req);
-HttpResponse response_Http_Request(int status_code, HttpRequest& request);
+int	check_req_well_formed(HttpRequest &req,Config& config);
+HttpResponse response_Http_Request(int status_code, HttpRequest& request, Config& config);
 std::string read_File(std::string Path);
 
 #endif // WEBSERV
