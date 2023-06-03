@@ -6,7 +6,6 @@
 #include <vector>
 #include <cassert>
 #include "config.hpp"
-#include <iostream>
 
 #define BACKLOG_SIZE 32
 #define HTTP_DEL "\r\n"
@@ -31,6 +30,7 @@ class HttpRequest {
 		std::string url;
 		std::string version;
 		std::map<std::string, std::string> headers;
+
 		std::string content;
 };
 
@@ -58,9 +58,14 @@ int watchlist_wait_fd(int efd);
 std::string trim(std::string s);
 void parse_config(std::string config_file);
 void dump_config(Config config);
-//---------------------------------------------------------------------------
-int	check_req_well_formed(HttpRequest &req,Config& config);
-HttpResponse response_Http_Request(int status_code, HttpRequest& request, Config& config);
-std::string read_File(std::string Path);
+//------------------------------------------------------------------------------------------------
+int				check_req_well_formed(HttpRequest &req,Config& config);
+void	response_Http_Request(int status_code, HttpRequest& request, Config& config, HttpResponse& response);
+HttpResponse	response_Http_Request_error(int status_code, HttpRequest& request, Config& config);
+std::string		res_content(int status_code, HttpRequest& request, Config& config);
+std::vector<Server>::iterator server(Config& config, HttpRequest& request);
+std::string		read_File(std::string Path);
+int				ft_atoi(std::string s);
+
 
 #endif // WEBSERV

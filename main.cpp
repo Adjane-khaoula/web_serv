@@ -111,7 +111,7 @@ int main(int argc, char **argv) {
 		HttpRequest req;
 		HttpResponse response;
 		parse_http_request(request, req);
-		response = response_Http_Request(check_req_well_formed(req, config), req, config);
+		response = response_Http_Request_error(check_req_well_formed(req, config), req, config);
 		std::string res_str = generate_http_response(response);
 		send(fd, res_str.c_str(), res_str.length(), 0);// == (ssize_t)res_str.length();
 		// std::cout << "\033[33m" << check_req_well_formed(req) << "\033[0m" << std::endl;
