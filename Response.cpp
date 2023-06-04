@@ -3,8 +3,8 @@
 #include <iostream>
 #include <fstream>
 #include <sstream>
+#include <dirent.h>
 
-// if => no location match the request uri => 404
 std::string generate_http_response(HttpResponse &res)
 {
 	std::stringstream res_str;
@@ -50,4 +50,25 @@ void response_Http_Request(int status_code, HttpRequest& request, Config& config
 			response.headers["location"] = "https://profile.intra.42.fr/";
 	}
 }
+
+int	response_get(HttpRequest& req, Config& config)
+{
+	DIR* directory = opendir(req.url.substr(1,req.url.length()).c_str());
+	if (directory)
+	{
+		struct dirent* content_dir;
+        while ((content_dir = readdir(directory))) 
+            std::cout << "Entry name: " << content_dir->d_name << std::endl;
+        closedir(directory);
+    }
+	else
+		std::cout << "/////////////////////////// ma t7alch\n";
+	return (200);
+}
+
+
 // default url is "/" sot we shod met location "/"
+// add return redirection
+// add client_max_body_size 10M
+// autoindex = on Turn on or off directory listing.
+//and Set a default file to answer if the request is a directory.

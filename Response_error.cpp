@@ -9,6 +9,7 @@ int	check_req_well_formed(HttpRequest &req,Config& config)
 	std::map<std::string, std::string>::iterator it;
 	std::vector<Server>::iterator it2 = server(config, req);
 	std::vector<Location>::iterator it3;
+	std::vector<std::string>::iterator it4;
 	std::string client_max_body_size = "10M";//the maximum size limit in megabytes (MB) for the request body.
 	std::string client_max_body = client_max_body_size.substr(0, client_max_body_size.find("M"));//10
 
@@ -27,13 +28,26 @@ int	check_req_well_formed(HttpRequest &req,Config& config)
 		return (413); //413 Request Entity Too Large
 	for(it3 = it2->routes.begin(); it3 != it2->routes.end(); it3++)
 	{
-		std::cout << "************** " << it3->dir << std::endl;
 		if (it3->dir == req.url)
+		{
+			for (it4 = it3->methods.begin(); it4 != it3->methods.end(); it4++)
+				if(*it4 == req.method)
+				{
+					if (req.method == "GET")
+						response_get(req, config);
+					// else if (req.method == "POST")
+					// 	response_post();
+					// else
+					// 	response_delete();
+					break ;
+				}
+			if (it4 == it3->methods.end())
+				return (405);
 			break;
+		}
 	}
 	if (it3 == it2->routes.end())
 		return (404);
-	// if (it2->)
 	return(301);
 }
 
@@ -47,13 +61,10 @@ HttpResponse response_Http_Request_error(int status_code, HttpRequest& request, 
 
 	// for(it3 = it2->routes.begin(); it3 != it2->routes.end(); it3++)
 	// {
-	// 	if (it3->root == request.url)
+	// 	if (it3->dir == request.url)
 	// 	{
-	// 		for(std::vector<Redirection>::iterator it2 = it3->redirections.begin(); it2 != it3->redirections.end(); it2++)
-	// 			{
-	// 				std::cout <<"***************"<< it2->from << std::endl;
-	// 				std::cout <<"***************"<< it2->to << std::endl;
-	// 			}
+	// 		for(std::vector<std::string>::iterator it = it3->methods.begin(); it != it3->methods.end(); it++)
+	// 			std::cout << "///////////" << *it << std::endl;
 	// 		break;
 	// 	}
 	// }
@@ -94,12 +105,13 @@ HttpResponse response_Http_Request_error(int status_code, HttpRequest& request, 
 				response.content = read_File("www/404.html");
 			response.headers["Content-Type"] = "text/html";
 			break ;
-		// case 405:
-		// 	response.reason_phrase = "Method Not Allowed";
-		// 	response.content = res_content(status_code, request, config);
-		// 	if (response.content.empty())
-		// 		response.content = read_File("www/404.html");
-		// 	response.headers["Content-Type"] = "text/html";
+		case 405:
+			response.reason_phrase = "Method Not Allowed";
+			response.content = res_content(status_code, request, config);
+			if (response.content.empty())
+				response.content = read_File("www/405.html");
+			response.headers["Content-Type"] = "text/html";
+			break;
 		case 200:
 			response.reason_phrase = "ok";
 			response.content = res_content(status_code, request, config);

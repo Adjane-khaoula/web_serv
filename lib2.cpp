@@ -26,11 +26,13 @@ int ft_atoi(std::string s) {
 
 std::vector<Server>::iterator server(Config& config, HttpRequest& request)
 {
-	int port = ft_atoi(request.headers["Host"].substr(request.headers["Host"].find(":") + 1, request.headers["Host"].length()));
+	int	position = request.headers["Host"].find(":");
+	std::string ip = request.headers["Host"].substr(0, position);
+	int port = ft_atoi(request.headers["Host"].substr(position + 1, request.headers["Host"].length()));
 	for (std::vector<Server>::iterator it = config.servers.begin(); it != config.servers.end(); it++)
-		if (it->port == port)
+		if (it->ip == ip && it->port == port)
 			return (it);
-	return (config.servers.end());
+	return (config.servers.begin());
 }
 
 std::string read_File(std::string Path)
