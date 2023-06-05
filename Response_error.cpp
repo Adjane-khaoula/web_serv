@@ -33,8 +33,8 @@ int	check_req_well_formed(HttpRequest &req,Config& config)
 			for (it4 = it3->methods.begin(); it4 != it3->methods.end(); it4++)
 				if(*it4 == req.method)
 				{
-					if (req.method == "GET")
-						response_get(req, config);
+					// if (req.method == "GET")
+					// 	response_get(req, config);
 					// else if (req.method == "POST")
 					// 	response_post();
 					// else
@@ -125,3 +125,13 @@ HttpResponse response_Http_Request_error(int status_code, HttpRequest& request, 
 	response.headers["Content-Length"] = std::to_string(response.content.length());
 	return response;
 }
+
+// text/html: .html, .htm
+// text/plain: .txt
+// application/json: .json
+// application/xml: .xml
+// application/pdf: .pdf
+// image/jpeg: .jpeg, .jpg
+// image/png: .png
+// image/gif: .gif
+// application/octet-stream: Default MIME type for unknown file types

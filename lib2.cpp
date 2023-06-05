@@ -24,6 +24,34 @@ int ft_atoi(std::string s) {
 	return (sign * nbr);
 }
 
+std::string get_content_type(HttpRequest& req)
+{
+	if (req.url.substr(req.url.find(".") + 1,req.url.length()) == "html"
+		|| req.url.substr(req.url.find(".") + 1,req.url.length()) == "htm"
+		|| req.url.substr(req.url.find(".") + 1,req.url.length()) == "shtml")
+		return("text/html");
+	if (req.url.substr(req.url.find(".") + 1,req.url.length()) == "css")
+		return("text/css");
+	if (req.url.substr(req.url.find(".") + 1,req.url.length()) == "js")
+		return("text/javascript");
+	if (req.url.substr(req.url.find(".") + 1,req.url.length()) == "png")
+		return("image/png");
+	if (req.url.substr(req.url.find(".") + 1,req.url.length()) == "json")
+		return("application/json");
+	if (req.url.substr(req.url.find(".") + 1,req.url.length()) == "xml")
+		return("application/xml");
+	if (req.url.substr(req.url.find(".") + 1,req.url.length()) == "pdf")
+		return("application/pdf");
+	if (req.url.substr(req.url.find(".") + 1,req.url.length()) == "jpeg"
+		|| req.url.substr(req.url.find(".") + 1,req.url.length()) == "jpg")
+		return ("image/jpeg");
+	if (req.url.substr(req.url.find(".") + 1,req.url.length()) == "gif")
+		return ("image/gif");
+	if (req.url.substr(req.url.find(".") + 1,req.url.length()) == "txt")
+		return ("text/plain");
+	return("application/octet-stream");
+}
+
 std::vector<Server>::iterator server(Config& config, HttpRequest& request)
 {
 	int	position = request.headers["Host"].find(":");

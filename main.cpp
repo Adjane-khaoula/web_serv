@@ -22,7 +22,7 @@ int max_server_fd;
 /**
  * spawn servers and add their sockets to watchlist
  * wait for events (connections, requests) and handle them serially
- *
+ * 
 */
 
 void spawn_servers(int wfd) {
@@ -74,7 +74,6 @@ int main(int argc, char **argv) {
 	parse_config(argv[1]);
 	dump_config(config);
 
-	HttpResponse response;
     int wfd = init_watchlist();
 	spawn_servers(wfd);
 
@@ -107,7 +106,6 @@ int main(int argc, char **argv) {
 			std::cout << "--------- request received"<< std::endl;
 		}
 
-
 		HttpRequest req;
 		HttpResponse response;
 		parse_http_request(request, req);
@@ -130,23 +128,14 @@ int main(int argc, char **argv) {
 		for (auto it = req.headers.begin(); it != req.headers.end(); it++) {
 			std::cout << "\033[32m" << it->first << ' ' << it->second << "\033[0m" << std::endl;
 		}
+
+		// HttpRequest req;
+		// parse_http_request(request, req);
+
+		// HttpResponse res;
+		// handle_http_response(req, res);
+
+		// std::string res_str = generate_http_response(res);
+		// assert(send(fd, res_str.c_str(), res_str.length(), 0) == (ssize_t)res_str.length());
 	}
 }
-
-
-// ********** method: GET
-// ********** url: /
-// ********** version: HTTP/1.1
-//request headers
-// --------- Accept  text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7
-// --------- Accept-Encoding  gzip, deflate, br
-// --------- Accept-Language  en-US,en;q=0.9,fr;q=0.8
-// --------- Cache-Control  max-age=0
-// --------- Connection  keep-alive
-// --------- Host  127.0.0.1:8080
-// --------- Upgrade-Insecu∫e-Requests  1
-// --------- User-Agent  Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/113.0.0.0 Safari/537.36
-// --------- sec-ch-ua  "Google Chrome";v="113", "Chromium";v="113", "Not-A.Brand";v="24"
-// --------- sec-ch-ua-mobile  ?0
-// --------- sec-ch-ua-platform  "macOS"
-// --------- connection received 127.0.0.1:51922

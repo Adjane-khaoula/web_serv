@@ -58,7 +58,9 @@ int watchlist_wait_fd(int efd);
 std::string trim(std::string s);
 void parse_config(std::string config_file);
 void dump_config(Config config);
-//------------------------------------------------------------------------------------------------
+void handle_http_response(const HttpRequest &req, HttpResponse &res);
+//----------------------------------------------------------------------------
+
 int				check_req_well_formed(HttpRequest &req,Config& config);
 void			response_Http_Request(int status_code, HttpRequest& request, Config& config, HttpResponse& response);
 HttpResponse	response_Http_Request_error(int status_code, HttpRequest& request, Config& config);
@@ -67,6 +69,6 @@ std::vector<Server>::iterator server(Config& config, HttpRequest& request);
 std::string		read_File(std::string Path);
 int				ft_atoi(std::string s);
 int				response_get(HttpRequest& req, Config& config);
-
+std::string		get_content_type(HttpRequest& req);
 
 #endif // WEBSERV
