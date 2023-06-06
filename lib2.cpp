@@ -63,10 +63,22 @@ std::vector<Server>::iterator server(Config& config, HttpRequest& request)
 	return (config.servers.begin());
 }
 
+std::vector<Location>::iterator location(Config& config, HttpRequest& req, std::vector<Server>::iterator server)
+{
+	for (std::vector<Location>::iterator it2 = server->routes.begin(); it2 != server->routes.end();it2++)
+		if (req.url.find(it2->target) != std::string::npos && req.url.find(it2->target) == 0)
+			return (it2);
+	return (server->routes.end());
+}
+
 std::string read_File(std::string Path)
 {
-	std::ifstream file(Path);
+	std::cout << "---------------->path =="<< Path<<std::endl;
+	std::ifstream file(Path);//if_open
 	std::stringstream buffer;
+
+	if (!file)
+		return ("404");
 	buffer << file.rdbuf();
 	return buffer.str();
 }

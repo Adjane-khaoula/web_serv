@@ -41,6 +41,8 @@ class HttpResponse {
 		std::string reason_phrase;
 		std::map<std::string, std::string> headers;
 		std::string content;
+		std::vector<Server>::iterator it;
+		std::vector<Location>::iterator it2;
 };
 
 void die(std::string msg);
@@ -61,14 +63,15 @@ void dump_config(Config config);
 void handle_http_response(const HttpRequest &req, HttpResponse &res);
 //----------------------------------------------------------------------------
 
-int				check_req_well_formed(HttpRequest &req,Config& config);
+int				check_req_well_formed(HttpRequest &req,Config& config, HttpResponse& response);
 void			response_Http_Request(int status_code, HttpRequest& request, Config& config, HttpResponse& response);
-HttpResponse	response_Http_Request_error(int status_code, HttpRequest& request, Config& config);
-std::string		res_content(int status_code, HttpRequest& request, Config& config);
+void			response_Http_Request_error(int status_code, HttpRequest& request, Config& config, HttpResponse& response);
+std::string		res_content(int status_code, HttpRequest& request, Config& config, HttpResponse& response);
 std::vector<Server>::iterator server(Config& config, HttpRequest& request);
 std::string		read_File(std::string Path);
 int				ft_atoi(std::string s);
-int				response_get(HttpRequest& req, Config& config);
+void			response_get(HttpRequest& req, Config& config, HttpResponse& response);
 std::string		get_content_type(HttpRequest& req);
+std::vector<Location>::iterator	location(Config& config, HttpRequest& req, std::vector<Server>::iterator server);
 
 #endif // WEBSERV

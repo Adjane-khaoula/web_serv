@@ -72,7 +72,7 @@ int main(int argc, char **argv) {
 		die("usage: webserv <config_file>\n");
 
 	parse_config(argv[1]);
-	dump_config(config);
+	// dump_config(config);
 
     int wfd = init_watchlist();
 	spawn_servers(wfd);
@@ -109,9 +109,22 @@ int main(int argc, char **argv) {
 		HttpRequest req;
 		HttpResponse response;
 		parse_http_request(request, req);
-		response = response_Http_Request_error(check_req_well_formed(req, config), req, config);
+		
+		response.it = server(config, req);
+		response.it2 = location(config, req, response.it);
+		int	status_code = check_req_well_formed(req, config, response);
+		if (status_code == 1)
+			response_get(req, config, response);
+		else
+			response_Http_Request_error(status_code, req, config, response);
+		//else if (status_code == 2)
+		// 	response_post(req, config, response);
+		//else if (status_code == 3)
+		// 	response_delete(req, config, response);
+		// std::cout <<"response.content = \n"<< response.content << std::endl;
 		std::string res_str = generate_http_response(response);
-		send(fd, res_str.c_str(), res_str.length(), 0);// == (ssize_t)res_str.length();
+		send(fd, res_str.c_str(), res_str.length(), 0) ;
+		// std::cout <<"res_str = "<< res_str << std::endl;
 		// std::cout << "\033[33m" << check_req_well_formed(req) << "\033[0m" << std::endl;
 		// response = processHttpRequest(req);
 		// std::cout << "********** " << "response.code " << response.code << std::endl;
@@ -139,3 +152,22 @@ int main(int argc, char **argv) {
 		// assert(send(fd, res_str.c_str(), res_str.length(), 0) == (ssize_t)res_str.length());
 	}
 }
+
+
+// method: GET
+// url: /
+// version: HTTP/1.1
+// Accept  */*
+// Accept-Encoding  gzip, deflate, br
+// Connection  keep-alive
+// Content-Length  10
+// Content-Type  text/plain
+// Host  0.0.0.0:8080
+// Postman-Token  3f6de512-08ad-4c0b-932c-b8007843f934
+// Transfer-Encoding chunked
+
+
+
+
+
+//add time out
