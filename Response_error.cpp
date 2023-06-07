@@ -74,7 +74,6 @@ void response_Http_Request_error(int status_code, HttpRequest& request, Config& 
 		case 501 :
 			response.reason_phrase = "not implemented";
 			response.content = res_content(status_code, request, config, response);
-			std::cout << "+++++++++++++++++++++++++\n"<< response.content << std::endl;
 			if (response.content == "not found")
 				response.content = read_File("www/501.html");
 			response.headers["Content-Type"] = "text/html";
@@ -104,10 +103,7 @@ void response_Http_Request_error(int status_code, HttpRequest& request, Config& 
 			response.reason_phrase = "Not Found";
 			response.content = res_content(status_code, request, config, response);
 			if (response.content == "not found")
-			{
-				// std::cout << "+++++++++++++++++++++++++\n" << read_File("www/404.html") << std::endl;
 				response.content = read_File("www/404.html");
-			}
 			response.headers["Content-Type"] = "text/html";
 			break ;
 		case 405:
@@ -130,17 +126,3 @@ void response_Http_Request_error(int status_code, HttpRequest& request, Config& 
 	response.headers["Content-Length"] = std::to_string(response.content.length());
 	// return response;
 }
-
-// text/html: .html, .htm
-// text/plain: .txt
-// application/json: .json
-// application/xml: .xml
-// application/pdf: .pdf
-// image/jpeg: .jpeg, .jpg
-// image/png: .png
-// image/gif: .gif
-// application/octet-stream: Default MIME type for unknown file types
-
-
-
-

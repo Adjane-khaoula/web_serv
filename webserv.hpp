@@ -5,6 +5,7 @@
 #include <map>
 #include <vector>
 #include <cassert>
+#include <sys/stat.h>
 #include "config.hpp"
 
 #define BACKLOG_SIZE 32

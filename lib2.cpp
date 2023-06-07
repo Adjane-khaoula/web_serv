@@ -3,6 +3,7 @@
 #include <iostream>
 #include <fstream>
 #include <sstream>
+// #include <sys/stat.h>
 
 int ft_atoi(std::string s) {
 	int					sign = 1;
@@ -26,29 +27,25 @@ int ft_atoi(std::string s) {
 
 std::string get_content_type(HttpRequest& req)
 {
-	if (req.url.substr(req.url.find(".") + 1,req.url.length()) == "html"
-		|| req.url.substr(req.url.find(".") + 1,req.url.length()) == "htm"
-		|| req.url.substr(req.url.find(".") + 1,req.url.length()) == "shtml")
-		return("text/html");
-	if (req.url.substr(req.url.find(".") + 1,req.url.length()) == "css")
-		return("text/css");
-	if (req.url.substr(req.url.find(".") + 1,req.url.length()) == "js")
-		return("text/javascript");
-	if (req.url.substr(req.url.find(".") + 1,req.url.length()) == "png")
-		return("image/png");
-	if (req.url.substr(req.url.find(".") + 1,req.url.length()) == "json")
-		return("application/json");
-	if (req.url.substr(req.url.find(".") + 1,req.url.length()) == "xml")
-		return("application/xml");
-	if (req.url.substr(req.url.find(".") + 1,req.url.length()) == "pdf")
-		return("application/pdf");
-	if (req.url.substr(req.url.find(".") + 1,req.url.length()) == "jpeg"
-		|| req.url.substr(req.url.find(".") + 1,req.url.length()) == "jpg")
-		return ("image/jpeg");
-	if (req.url.substr(req.url.find(".") + 1,req.url.length()) == "gif")
-		return ("image/gif");
-	if (req.url.substr(req.url.find(".") + 1,req.url.length()) == "txt")
-		return ("text/plain");
+	std::map<std::string, std::string> content_type;
+	std::string type = req.url.substr(req.url.rfind(".") + 1,req.url.length());
+
+	content_type["html"] = "text/html";
+	content_type["htm"] = "text/html";
+	content_type["shtml"] = "text/html";
+	content_type["css"] = "text/css";
+	content_type["js"] = "text/javascript";
+	content_type["png"] = "image/png";
+	content_type["json"] = "application/json";
+	content_type["xml"] = "application/xml";
+	content_type["pdf"] = "application/pdf";
+	content_type["xml"] = "application/xml";
+	content_type["jpeg"] = "image/jpeg";
+	content_type["jpg"] = "image/jpeg";
+	content_type["gif"] = "image/gif";
+	content_type["txt"] = "text/plain";
+	if (content_type.find(type) != content_type.end())
+		return (content_type[type]);
 	return("application/octet-stream");
 }
 
@@ -73,8 +70,7 @@ std::vector<Location>::iterator location(Config& config, HttpRequest& req, std::
 
 std::string read_File(std::string Path)
 {
-	std::cout << "---------------->path =="<< Path<<std::endl;
-	std::ifstream file(Path);//if_open
+	std::ifstream file(Path);
 	std::stringstream buffer;
 
 	if (!file)
@@ -83,5 +79,18 @@ std::string read_File(std::string Path)
 	return buffer.str();
 }
 
+std::string type_repo(std::string& path)
+{
+	struct stat info;
+
+	if (!stat(path.c_str(), info))
+	{
+		if (S_ISREG(info.st_mode))
+			return ("is_file");
+		if (S_ISDIR(info.st_mode))
+			return ("is_directory");
+	}
+	return ("not found");
+}
 
 //srckjbfk in uri ^

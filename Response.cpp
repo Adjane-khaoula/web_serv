@@ -90,14 +90,10 @@ void response_Http_Request(int status_code, HttpRequest& request, Config& config
 
 void	response_get(HttpRequest& req, Config& config, HttpResponse& response)
 {
-	// std::vector<Server>::iterator it = server(config, req);
-	// std::vector<Location>::iterator it2 = location(config, req);
 
-	// if (req.url.find(response.it2->target) != std::string::npos)
-	// {
-		if (response.it2->cgi.empty())
-			response_Http_Request(200, req, config, response);
-	// }
+	if (response.it2->cgi.empty())
+		response_Http_Request(200, req, config, response);
+		
 	// DIR* directory = opendir(req.url.substr(1,req.url.length()).c_str());
 	// if (directory)
 	// {
@@ -116,6 +112,3 @@ void	response_get(HttpRequest& req, Config& config, HttpResponse& response)
 // add client_max_body_size 10M
 // autoindex = on Turn on or off directory listing.
 //and Set a default file to answer if the request is a directory.
-
-
-
