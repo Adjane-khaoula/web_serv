@@ -114,7 +114,10 @@ int main(int argc, char **argv) {
 		response.it2 = location(config, req, response.it);
 		int	status_code = check_req_well_formed(req, config, response);
 		if (status_code == 1)
+		{
+			// std::cout << "************> status_code == " << status_code<< std::endl;
 			response_get(req, config, response);
+		}
 		else
 			response_Http_Request_error(status_code, req, config, response);
 		//else if (status_code == 2)

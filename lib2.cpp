@@ -73,24 +73,54 @@ std::string read_File(std::string Path)
 	std::ifstream file(Path);
 	std::stringstream buffer;
 
+
 	if (!file)
 		return ("not found");
+	// std::cout << "*******> " << Path << std::endl;
 	buffer << file.rdbuf();
 	return buffer.str();
 }
 
-std::string type_repo(std::string& path)
+std::string type_repo(std::string path)
 {
 	struct stat info;
 
-	if (!stat(path.c_str(), info))
+	std::cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << std::endl;
+	if (*(path.end() - 1) == '/')
+		return ("is_directory with /");
+	if (!stat(path.c_str(), &info))
 	{
+		std::cout << "////////////////////////////////" << std::endl;
 		if (S_ISREG(info.st_mode))
+		{
+
+			std::cout << "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@" << std::endl;
 			return ("is_file");
+		}
 		if (S_ISDIR(info.st_mode))
+		{
+			std::cout << "++++++++++++++++++++++" << std::endl;
 			return ("is_directory");
+		}
 	}
+	// std::cout << "$$$$$$$$$$$$$$$$$$$$$$$$$$$$$" << std::endl;
 	return ("not found");
 }
 
-//srckjbfk in uri ^
+std::string content_dir(std::string dir, std::vector<std::string>& content)
+{
+	DIR* directory = opendir(dir.c_str());
+
+	if (directory)
+	{
+		struct dirent* content_dir;
+        while ((content_dir = readdir(directory)))
+			content.push_back(content_dir->d_name);
+        closedir(directory);
+		return("found");
+	}
+	return ("not found");
+	// else
+		// std::cout << "/////////////////////////// ma t7alch\n";
+    // std::cout << "Entry name: " << content_dir->d_name << std::endl;
+}

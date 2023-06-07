@@ -121,8 +121,12 @@ void response_Http_Request_error(int status_code, HttpRequest& request, Config& 
 		// 	response.headers["Content-Type"] = "text/html";
 		// 	break ;
 	}
-	if (status_code == 301)
-		response_Http_Request (status_code, request, config, response);
+	// if (status_code == 301)
+	// 	response_Http_Request (status_code, request, config, response);
 	response.headers["Content-Length"] = std::to_string(response.content.length());
 	// return response;
 }
+
+
+// 0.0.0.0:8080/srcs/
+//srckjbfk in uri ^

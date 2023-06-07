@@ -7,11 +7,15 @@
 #include <cassert>
 #include <sys/stat.h>
 #include "config.hpp"
+#include <dirent.h>
+#include <fstream>
+#include <sstream>
+#include <algorithm>
 
 #define BACKLOG_SIZE 32
 #define HTTP_DEL "\r\n"
 // #define assert(cond) if (!(cond)) \
-// 						die("assertion failed: " #cond);
+// die("assertion failed: " #cond);
 
 /*
 	execve, dup, dup2, pipe, strerror, gai_strerror,
@@ -31,7 +35,6 @@ class HttpRequest {
 		std::string url;
 		std::string version;
 		std::map<std::string, std::string> headers;
-
 		std::string content;
 };
 
@@ -65,7 +68,7 @@ void handle_http_response(const HttpRequest &req, HttpResponse &res);
 //----------------------------------------------------------------------------
 
 int				check_req_well_formed(HttpRequest &req,Config& config, HttpResponse& response);
-void			response_Http_Request(int status_code, HttpRequest& request, Config& config, HttpResponse& response);
+void			response_Http_Request(int status_code, HttpRequest& request, Config& config, HttpResponse& response, std::string path);
 void			response_Http_Request_error(int status_code, HttpRequest& request, Config& config, HttpResponse& response);
 std::string		res_content(int status_code, HttpRequest& request, Config& config, HttpResponse& response);
 std::vector<Server>::iterator server(Config& config, HttpRequest& request);
@@ -74,5 +77,10 @@ int				ft_atoi(std::string s);
 void			response_get(HttpRequest& req, Config& config, HttpResponse& response);
 std::string		get_content_type(HttpRequest& req);
 std::vector<Location>::iterator	location(Config& config, HttpRequest& req, std::vector<Server>::iterator server);
+std::string		type_repo(std::string path);
+std::string content_dir(std::string dir, std::vector<std::string>& content);
+std::string res_content_dir(int status_code, HttpRequest& request, Config& config, HttpResponse& response, std::string path);
+std::string	res_content_file(int status_code, HttpRequest& request, Config& config, HttpResponse& response, std::string path);
+
 
 #endif // WEBSERV
