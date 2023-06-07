@@ -28,7 +28,7 @@ std::string	res_content(int status_code, HttpRequest& request, Config& config, H
 		{
 			path = response.it2->dir + request.url.substr(response.it2->target.length(), request.url.length());
 			content = read_File(path);
-			if (content == "404")
+			if (content == "not found")
 			{
 				response_Http_Request_error(404, request, config, response);
 				return ("");
@@ -40,7 +40,7 @@ std::string	res_content(int status_code, HttpRequest& request, Config& config, H
 		{
 			path = response.it->root + request.url.substr(response.it2->target.length(), request.url.length());
 			content = read_File(path);
-			if (content == "404")
+			if (content == "not found")
 			{
 				response_Http_Request_error(404, request, config, response);
 				return ("");
@@ -51,13 +51,14 @@ std::string	res_content(int status_code, HttpRequest& request, Config& config, H
 		// else
 		// 	status_code = 404;
 	}
+	std::cout << "///////////" << status_code << std::endl;
 	for (std::vector<ErrorPage>::iterator it2 = response.it->error_pages.begin();it2 != response.it->error_pages.end(); it2++)
 		if (it2->error_code == status_code)
 			return(read_File(it2->page));
 	for (std::vector<ErrorPage>::iterator it = config.default_error_pages.begin(); it != config.default_error_pages.end(); it++)
 		if (it->error_code == status_code)
 			return (read_File(it->page));
-	return ("");
+	return ("not found");
 }
 
 void response_Http_Request(int status_code, HttpRequest& request, Config& config, HttpResponse& response)
@@ -76,14 +77,10 @@ void response_Http_Request(int status_code, HttpRequest& request, Config& config
 			break;
 		case 200:
 			response.reason_phrase = "ok";
-			std::cout << "{"<< res_content(status_code, request, config, response).empty()<< "}" << std::endl;//////////////////////return "" error here
 			if(res_content(status_code, request, config, response).empty())
 				return ;
 			else
-			{
-				std::cout << "+++++++++++++++++++++++++\n" << std::endl;
-				response.content = res_content(status_code, request, config, response).empty();
-			}
+				response.content = res_content(status_code, request, config, response);
 			response.headers["Content-Type"] = "text/html";
 			break;
 	}

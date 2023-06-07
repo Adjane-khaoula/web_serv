@@ -78,7 +78,10 @@ std::string read_File(std::string Path)
 	std::stringstream buffer;
 
 	if (!file)
-		return ("404");
+		return ("not found");
 	buffer << file.rdbuf();
 	return buffer.str();
 }
+
+
+//srckjbfk in uri ^

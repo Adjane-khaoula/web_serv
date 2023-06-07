@@ -74,35 +74,36 @@ void response_Http_Request_error(int status_code, HttpRequest& request, Config& 
 		case 501 :
 			response.reason_phrase = "not implemented";
 			response.content = res_content(status_code, request, config, response);
-			if (response.content == "404")
+			std::cout << "+++++++++++++++++++++++++\n"<< response.content << std::endl;
+			if (response.content == "not found")
 				response.content = read_File("www/501.html");
 			response.headers["Content-Type"] = "text/html";
 			break ;
 		case 400:
 			response.reason_phrase = "Bad Request";
 			response.content = res_content(status_code, request, config, response);
-			if (response.content == "404")
+			if (response.content == "not found")
 				response.content = read_File("www/400.html");
 			response.headers["Content-Type"] = "text/html";
 			break ;
 		case 414:
 			response.reason_phrase = "Request-URI Too Long";
 			response.content = res_content(status_code, request, config, response);
-			if (response.content == "404")
+			if (response.content == "not found")
 				response.content = read_File("www/414.html");
 			response.headers["Content-Type"] = "text/html";
 			break ;
 		case 413:
 			response.reason_phrase = "Request Entity Too Large";
 			response.content = res_content(status_code, request, config, response);
-			if (response.content == "404")
+			if (response.content == "not found")
 				response.content = read_File("www/413.html");
 			response.headers["Content-Type"] = "text/html";
 			break ;
 		case 404:
 			response.reason_phrase = "Not Found";
 			response.content = res_content(status_code, request, config, response);
-			if (response.content == "404")
+			if (response.content == "not found")
 			{
 				// std::cout << "+++++++++++++++++++++++++\n" << read_File("www/404.html") << std::endl;
 				response.content = read_File("www/404.html");
@@ -112,7 +113,7 @@ void response_Http_Request_error(int status_code, HttpRequest& request, Config& 
 		case 405:
 			response.reason_phrase = "Method Not Allowed";
 			response.content = res_content(status_code, request, config, response);
-			if (response.content == "404")
+			if (response.content == "not found")
 				response.content = read_File("www/405.html");
 			response.headers["Content-Type"] = "text/html";
 			break;
