@@ -7,8 +7,6 @@
 int	check_req_well_formed(HttpRequest &req,Config& config, HttpResponse& response)
 {
 	std::map<std::string, std::string>::iterator it;
-	// std::vector<Server>::iterator response.it = server(config, req);
-	// std::vector<Location>::iterator it3 = location (config, req);
 	std::vector<std::string>::iterator it4;
 	std::string client_max_body_size = "10M";//the maximum size limit in megabytes (MB) for the request body.
 	std::string client_max_body = client_max_body_size.substr(0, client_max_body_size.find("M"));//10
@@ -113,18 +111,16 @@ void response_Http_Request_error(int status_code, HttpRequest& request, Config& 
 				response.content = read_File("www/405.html");
 			response.headers["Content-Type"] = "text/html";
 			break;
-		// case 200:
-		// 	response.reason_phrase = "ok";
-		// 	response.content = res_content(status_code, request, config, response);
-		// 	if (response.content.empty())
-		// 		response.content = "ara chi boysa";
-		// 	response.headers["Content-Type"] = "text/html";
-		// 	break ;
+		case 403:
+				response.reason_phrase = "403 Forbidden";
+			response.content = res_content(status_code, request, config, response);
+			if (response.content == "not found")
+				response.content = read_File("www/403.html");
+			response.headers["Content-Type"] = "text/html";
 	}
 	// if (status_code == 301)
 	// 	response_Http_Request (status_code, request, config, response);
 	response.headers["Content-Length"] = std::to_string(response.content.length());
-	// return response;
 }
 
 

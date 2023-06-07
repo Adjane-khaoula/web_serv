@@ -125,6 +125,7 @@ int main(int argc, char **argv) {
 		//else if (status_code == 3)
 		// 	response_delete(req, config, response);
 		// std::cout <<"response.content = \n"<< response.content << std::endl;
+		// std::cout <<  "*******>{" << response.content <<"}"<<std::endl;
 		std::string res_str = generate_http_response(response);
 		send(fd, res_str.c_str(), res_str.length(), 0) ;
 		// std::cout <<"res_str = "<< res_str << std::endl;
