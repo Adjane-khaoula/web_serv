@@ -79,9 +79,13 @@ int main(int argc, char **argv) {
 
 	int ret;
 
-	while (1) 
-	{
-X
+	while (1) {
+		int fd = watchlist_wait_fd(wfd);
+		if (fd <= max_server_fd) {
+			accept_connection(wfd, fd);
+			continue;
+		}
+
 		std::string request;
 		while (1) {
 			char buffer[255];
@@ -92,18 +96,18 @@ X
 				break;
 		}
 
-		// if (request.length() == 0) {
-		// 	std::cout << "--------- empty request: closing"<< std::endl;
-		// 	watchlist_del_fd(wfd, fd);
-		// 	close(fd);
-		// 	continue;
-		// } else {
-		// 	std::cout << "--------- request received"<< std::endl;
-		// }
+		if (request.length() == 0) {
+			std::cout << "--------- empty request: closing"<< std::endl;
+			watchlist_del_fd(wfd, fd);
+			close(fd);
+			continue;
+		} else {
+			std::cout << "--------- request received"<< std::endl;
+		}
 
 		HttpRequest req;
-		std::map<int,HttpResponse> responses;
 		parse_http_request(request, req);
+		std::map<int,HttpResponse> responses;
 		std::map<int, HttpResponse>::iterator it = responses.find(fd);
 
 		// if (response.clients.empty() || it == response.clients.end())
@@ -124,7 +128,7 @@ X
 				responses[fd].content = read_File(responses, fd);
 				std::string res_str = generate_http_response(responses[fd]);
 				res_str += responses[fd].content;
-				std::cout << "*********** {" << res_str << "}" << std::endl;
+				// std::cout << "*********** {" << res_str << "}" << std::endl;
 				send(fd, res_str.c_str(), res_str.length(), 0) ;
 			}
 			else
@@ -135,7 +139,7 @@ X
 			responses[fd].content = read_File(responses, fd);
 			std::string res_str = generate_http_response(responses[fd]);
 			res_str += responses[fd].content;
-			std::cout << "*********** {" << res_str << "}" << std::endl;
+			// std::cout << "*********** {" << res_str << "}" << std::endl;
 			send(fd, res_str.c_str(), res_str.length(), 0) ;
 		}
 
