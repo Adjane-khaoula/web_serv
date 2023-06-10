@@ -66,7 +66,7 @@ void accept_connection(int wfd, int server) {
 
 	std::cout << "--------- " << "connection received " << inet_ntoa(caddress.sin_addr) << ":" << ntohs(caddress.sin_port) << std::endl;
 }
-
+////////////////////////////////////////////////////////////////////////////////////
 int main(int argc, char **argv) {
 	if (argc != 2)
 		die("usage: webserv <config_file>\n");
@@ -81,103 +81,91 @@ int main(int argc, char **argv) {
 
 	while (1) {
 		int fd = watchlist_wait_fd(wfd);
+
 		if (fd <= max_server_fd) {
 			accept_connection(wfd, fd);
 			continue;
 		}
 
-		std::string request;
+		std::string request_buffer;
+		std::string response_buffer;
+		HttpRequest request;
+		// HttpResponse response;
+		int status_code;
+		std::map<int,HttpResponse> responses;
+		HttpResponse	response;
+		std::string res_str;
+		std::map<int, HttpResponse>::iterator it = responses.find(fd);
+
 		while (1) {
+			// std::cout << "/////////////// \n";
 			char buffer[255];
-			assert((ret = recv(fd, buffer, sizeof buffer, 0)) >= 0);
+			if ((ret = recv(fd, buffer, sizeof buffer, 0)) < 0)
+				goto close_socket;
 			buffer[ret] = 0;
-			request += buffer;
+			request_buffer += buffer;
 			if (ret != sizeof buffer)
 				break;
 		}
 
-		if (request.length() == 0) {
-			std::cout << "--------- empty request: closing"<< std::endl;
-			watchlist_del_fd(wfd, fd);
-			close(fd);
-			continue;
-		} else {
+		if (request_buffer.length() == 0)
+			goto close_socket;
+		else
 			std::cout << "--------- request received"<< std::endl;
-		}
+		// HttpRequest req;
 
-		HttpRequest req;
-		parse_http_request(request, req);
-		std::map<int,HttpResponse> responses;
-		std::map<int, HttpResponse>::iterator it = responses.find(fd);
+		parse_http_request(request_buffer, request);
 
-		// if (response.clients.empty() || it == response.clients.end())
-		HttpResponse	response;
 		if (responses.empty() || it == responses.end())
 		{
 			// InfoClient		info_client;
 			responses[fd] = response;
 			// response.clients[fd] = info_client;
-			responses[fd].request = req;
+			responses[fd].request = request;
 			responses[fd].it = server(config, responses[fd].request);
 			responses[fd].it2 = location(config, responses[fd].request, responses[fd].it);
-			int	status_code = check_req_well_formed(fd, config, responses);
+			status_code = check_req_well_formed(fd, config, responses);
 			if (status_code == 1)
 			{
 				// std::cout << "************> status_code == " << status_code<< std::endl;
 				response_get(fd, config, responses);
 				responses[fd].content = read_File(responses, fd);
-				std::string res_str = generate_http_response(responses[fd]);
+				res_str = generate_http_response(responses[fd]);
 				res_str += responses[fd].content;
 				// std::cout << "*********** {" << res_str << "}" << std::endl;
 				send(fd, res_str.c_str(), res_str.length(), 0) ;
 			}
 			else
-				response_Http_Request_error(status_code, req, config, response);
+				response_Http_Request_error(status_code, request, config, response);
 		}
 		else
 		{
 			responses[fd].content = read_File(responses, fd);
-			std::string res_str = generate_http_response(responses[fd]);
+			res_str = generate_http_response(responses[fd]);
 			res_str += responses[fd].content;
 			// std::cout << "*********** {" << res_str << "}" << std::endl;
 			send(fd, res_str.c_str(), res_str.length(), 0) ;
 		}
-
 			//else if (status_code == 2)
 			// 	response_post(req, config, response);
 			//else if (status_code == 3)
 			// 	response_delete(req, config, response);
-		// std::cout <<"response.content = \n"<< response.content << std::endl;
-		// std::cout <<  "*******>{" << response.content <<"}"<<std::endl;
-		// std::cout <<"res_str = "<< res_str << std::endl;
-		// std::cout << "\033[33m" << check_req_well_formed(req) << "\033[0m" << std::endl;
-		// response = processHttpRequest(req);
-		// std::cout << "********** " << "response.code " << response.code << std::endl;
-		// std::cout << "********** " << "response.reason_phrase " << response.reason_phrase << std::endl;
-		// std::cout << "********** " << "response.content " << response.content << std::endl;
-
-		// for (auto it = responses[fd].headers.begin(); it != responses[fd].headers.end(); it++) {
-		// 	std::cout << "--------- " << it->first << ' ' << it->second << std::endl;
-		// }
-		std::cout << "\033[32m"  << "method: " << responses[fd].request.method<< "\033[0m" << std::endl;
-		std::cout << "\033[32m"  << "url: " << responses[fd].request.url<< "\033[0m" << std::endl;
-		std::cout << "\033[32m"  << "version: " << responses[fd].request.version << "\033[0m" << std::endl;
-
-		for (auto it = responses[fd].request.headers.begin(); it != responses[fd].request.headers.end(); it++) {
-			std::cout << "\033[32m" << it->first << ' ' << it->second << "\033[0m" << std::endl;
-		}
-
-		// HttpRequest req;
-		// parse_http_request(request, req);
-
-		// HttpResponse res;
-		// handle_http_response(req, res);
-
-		// std::string res_str = generate_http_response(res);
-		// assert(send(fd, res_str.c_str(), res_str.length(), 0) == (ssize_t)res_str.length());
+		continue;
+close_socket:
+			std::cout << "--------- invalid request: close socket"<< std::endl;
+			watchlist_del_fd(wfd, fd);
+			close(fd);
+			continue;
 	}
 }
 
+		// std::cout << "\033[32m"  << "method: " << responses[fd].request.method<< "\033[0m" << std::endl;
+		// std::cout << "\033[32m"  << "url: " << responses[fd].request.url<< "\033[0m" << std::endl;
+		// std::cout << "\033[32m"  << "version: " << responses[fd].request.version << "\033[0m" << std::endl;
+
+		// for (auto it = responses[fd].request.headers.begin(); it != responses[fd].request.headers.end(); it++) {
+		// 	std::cout << "\033[32m" << it->first << ' ' << it->second << "\033[0m" << std::endl;
+		// }
 
 // method: GET
 // url: /

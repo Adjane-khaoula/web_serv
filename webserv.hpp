@@ -11,6 +11,7 @@
 #include <fstream>
 #include <sstream>
 #include <algorithm>
+#include <cassert>
 
 #define BACKLOG_SIZE 32
 #define HTTP_DEL "\r\n"
