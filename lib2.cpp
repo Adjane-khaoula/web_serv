@@ -68,7 +68,44 @@ std::vector<Location>::iterator location(Config& config, HttpRequest& req, std::
 	return (server->routes.end());
 }
 
-std::string read_File(std::string Path)
+std::string read_File(std::map<int,HttpResponse>& responses, int fd )
+{
+	std::ifstream file(responses[fd].path_file, std::ifstream::binary);
+
+	if (file)
+	{
+		file.seekg (0, file.end);
+		int length = file.tellg();
+		file.seekg (0, file.beg);
+		std::vector<char> buffer(100);
+
+		if (responses[fd].byte_reading < length) {
+		int chunkSize = std::min(BUFF_SIZE, length - responses[fd].byte_reading);
+		buffer.resize(chunkSize);
+		file.read(buffer.data(), chunkSize);
+		// std::cout << "Reading " << is.gcount() << " characters... \n";
+		// std::cout << "all characters read successfully." << std::endl;
+		// std::cout << buffer.size() << std::endl;		
+		// for (int i = 0; i < is.gcount(); ++i) {
+		//     std::cout << "\033[32m" << buffer[i] << "\033[0m";
+		// }
+		// std::cout << std::endl;		
+		responses[fd].byte_reading += file.gcount();
+		if (file.gcount() == 0)
+		{
+			file.close();
+			return ("finish_reading");
+		}
+		}
+		std::string content(buffer.begin(), buffer.end());
+		responses[fd].headers["Content-Length"] = std::to_string(file.gcount());
+		return (content);
+	}
+	return ("404");
+
+}
+
+std::string read_File_error(std::string Path)
 {
 	std::ifstream file(Path);
 	std::stringstream buffer;
@@ -85,10 +122,13 @@ std::string type_repo(std::string path)
 {
 	struct stat info;
 
+	// path = "/Users/kadjane/Desktop/web_serv2/srcs";
+	// std::cout << "path == {" << path<< "}" << std::endl;
 	if (*(path.end() - 1) == '/')
 		return ("is_directory with /");
 	if (!stat(path.c_str(), &info))
 	{
+		// std::cout << "/////////////////////////////" << std::endl;
 		if (S_ISREG(info.st_mode))
 			return ("is_file");
 		if (S_ISDIR(info.st_mode))

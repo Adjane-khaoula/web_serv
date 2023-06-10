@@ -1,0 +1,35 @@
+********************1
+Reading 208 characters... 
+[32m<!DOCTYPE html>
+<html>
+<head>
+    <title>Welcome to Our Web Server</title>
+    <link rel="stylesheet[0m
+all characters read successfully.
+********************1
+Reading 208 characters... 
+[32m" href="styles.css">
+</head>
+<body>
+    <h1>Hello everyone in our beautiful web server</h1>
+</body>
+[0m
+all characters read successfully.
+********************0
+Reading 208 characters... 
+[32m</html>
+styles.css">
+</head>
+<body>
+    <h1>Hello everyone in our beautiful web server</h1>
+</body>
+[0m
+all characters read successfully.
+Reading 208 characters... [32m</html>
+styles.css">
+</head>
+<body>
+    <h1>Hello everyone in our beautiful web server</h1>
+</body>
+[0m
+all characters read successfully.

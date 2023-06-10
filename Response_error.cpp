@@ -4,36 +4,36 @@
 #include <fstream>
 #include <sstream>
 
-int	check_req_well_formed(HttpRequest &req,Config& config, HttpResponse& response)
+int	check_req_well_formed(int fd,Config& config, std::map<int,HttpResponse>& responses)
 {
 	std::map<std::string, std::string>::iterator it;
 	std::vector<std::string>::iterator it4;
-	std::string client_max_body_size = "10M";//the maximum size limit in megabytes (MB) for the request body.
+	std::string client_max_body_size = "100M";//the maximum size limit in megabytes (MB) for the request body.
 	std::string client_max_body = client_max_body_size.substr(0, client_max_body_size.find("M"));//10
 
-	it = req.headers.find("Transfer-Encoding");
-	if (it != req.headers.end() && it->second.erase(0, 1) != "chunked")
+	it = responses[fd].request.headers.find("Transfer-Encoding");
+	if (it != responses[fd].request.headers.end() && it->second.erase(0, 1) != "chunked")
 		return (501);//not implemented
-	if (it == req.headers.end()
-		&& req.headers.find("Content-Length") == req.headers.end() && req.method == "POST")
+	if (it == responses[fd].request.headers.end()
+		&& responses[fd].request.headers.find("Content-Length") == responses[fd].request.headers.end() && responses[fd].request.method == "POST")
 		return(400);//Bad Request
-	if (req.url.find_first_not_of("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-._~:/?#[]@!$&'()*+,;=%")
+	if (responses[fd].request.url.find_first_not_of("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-._~:/?#[]@!$&'()*+,;=%")
 			!= std::string::npos)
 		return(400);//Bad Request
-	if (req.url.length() > 2048)
+	if (responses[fd].request.url.length() > 2048)
 		return (414);//Request-URI Too Long
-	if (ft_atoi(req.headers["Content-Length"]) > ft_atoi(client_max_body) * 1024 * 1024)
+	if (ft_atoi(responses[fd].request.headers["Content-Length"]) > ft_atoi(client_max_body) * 1024 * 1024)
 		return (413); //413 Request Entity Too Large
-	if(response.it2 != response.it->routes.end())
+	if(responses[fd].it2 != responses[fd].it->routes.end())
 	{
-		for (it4 = response.it2->methods.begin(); it4 != response.it2->methods.end(); it4++)
-			if(*it4 == req.method)
+		for (it4 = responses[fd].it2->methods.begin(); it4 != responses[fd].it2->methods.end(); it4++)
+			if(*it4 == responses[fd].request.method)
 			{
-				if (req.method == "GET")
+				if (responses[fd].request.method == "GET")
 					return(1);
-				if (req.method == "POST")
+				if (responses[fd].request.method == "POST")
 					return(2);
-				if (req.method == "DELETE")
+				if (responses[fd].request.method == "DELETE")
 					return(3);
 					// response_get(req, config, response);
 				// else if (req.method == "POST")
@@ -42,7 +42,7 @@ int	check_req_well_formed(HttpRequest &req,Config& config, HttpResponse& respons
 				// 	response_delete();
 				break ;
 			}
-		if (it4 == response.it2->methods.end())
+		if (it4 == responses[fd].it2->methods.end())
 			return (405);
 	}
 	else
@@ -73,49 +73,49 @@ void response_Http_Request_error(int status_code, HttpRequest& request, Config& 
 			response.reason_phrase = "not implemented";
 			response.content = res_content(status_code, request, config, response);
 			if (response.content == "not found")
-				response.content = read_File("www/501.html");
+				response.content = read_File_error("www/501.html");
 			response.headers["Content-Type"] = "text/html";
 			break ;
 		case 400:
 			response.reason_phrase = "Bad Request";
 			response.content = res_content(status_code, request, config, response);
 			if (response.content == "not found")
-				response.content = read_File("www/400.html");
+				response.content = read_File_error("www/400.html");
 			response.headers["Content-Type"] = "text/html";
 			break ;
 		case 414:
 			response.reason_phrase = "Request-URI Too Long";
 			response.content = res_content(status_code, request, config, response);
 			if (response.content == "not found")
-				response.content = read_File("www/414.html");
+				response.content = read_File_error("www/414.html");
 			response.headers["Content-Type"] = "text/html";
 			break ;
 		case 413:
 			response.reason_phrase = "Request Entity Too Large";
 			response.content = res_content(status_code, request, config, response);
 			if (response.content == "not found")
-				response.content = read_File("www/413.html");
+				response.content = read_File_error("www/413.html");
 			response.headers["Content-Type"] = "text/html";
 			break ;
 		case 404:
 			response.reason_phrase = "Not Found";
 			response.content = res_content(status_code, request, config, response);
 			if (response.content == "not found")
-				response.content = read_File("www/404.html");
+				response.content = read_File_error("www/404.html");
 			response.headers["Content-Type"] = "text/html";
 			break ;
 		case 405:
 			response.reason_phrase = "Method Not Allowed";
 			response.content = res_content(status_code, request, config, response);
 			if (response.content == "not found")
-				response.content = read_File("www/405.html");
+				response.content = read_File_error("www/405.html");
 			response.headers["Content-Type"] = "text/html";
 			break;
 		case 403:
 				response.reason_phrase = "403 Forbidden";
 			response.content = res_content(status_code, request, config, response);
 			if (response.content == "not found")
-				response.content = read_File("www/403.html");
+				response.content = read_File_error("www/403.html");
 			response.headers["Content-Type"] = "text/html";
 	}
 	// if (status_code == 301)
