@@ -10,10 +10,7 @@ std::string generate_http_response(HttpResponse &res)
 	std::stringstream res_str;
 	res_str << res.version << " " << res.code<< " " << res.reason_phrase << HTTP_DEL;
 	for (std::map<std::string, std::string>::iterator it = res.headers.begin(); it != res.headers.end(); it++)
-	{
-		// std::
 		res_str << it->first << ": " << it->second << HTTP_DEL;
-	}
 	res_str << HTTP_DEL;
 	// std::cout << "*********** {" << res_str.str() << "}" << std::endl; 
 	// res_str << res.content;
@@ -63,12 +60,20 @@ std::string generate_http_response(HttpResponse &res)
 
 std::string		res_content(int status_code, HttpRequest& request, Config& config, HttpResponse& response)
 {
-	for (std::vector<ErrorPage>::iterator it2 = response.it->error_pages.begin();it2 != response.it->error_pages.end(); it2++)
-		if (it2->error_code == status_code)
-			return(read_File_error(it2->page));
-	for (std::vector<ErrorPage>::iterator it = config.default_error_pages.begin(); it != config.default_error_pages.end(); it++)
-		if (it->error_code == status_code)
-			return (read_File_error(it->page));
+	std::vector<Server>::iterator server_it = server(config, request);
+	std::vector<Location>::iterator location_it = location(config, request, server_it);
+	
+	for (std::vector<ErrorPage>::iterator location_it = response.it->error_pages.begin(); location_it != response.it->error_pages.end(); location_it++)
+	{
+		std::cout <<"*****************>"<< status_code << std::endl;
+		if (location_it->error_code == status_code)
+			return(read_File_error(location_it->page));
+	}
+	for (std::vector<ErrorPage>::iterator server_it = config.default_error_pages.begin(); server_it != config.default_error_pages.end(); server_it++)
+	{		
+		if (server_it->error_code == status_code)
+			return (read_File_error(server_it->page));
+	}
 	return ("not found");
 }
 
@@ -102,16 +107,10 @@ void response_Http_Request(int status_code, int fd, Config& config, std::map<int
 			break;
 		case 200:
 			responses[fd].reason_phrase = "ok";
-			// if(res_content_file(status_code, response.clients[fd].request, config, response, response.clients[fd].path_file).empty())
-			// 	return ;
-			// else
-			// {
-			// 	response.content = res_content_file(status_code, request, config, response, path);
-			// }
-			responses[fd].headers["Content-Type"] = "text/html";
+			responses[fd].headers["Content-Type"] = get_content_type(responses[fd].request);
+			responses[fd].headers["Connection"] = "keep-alive";
 			break;
 	}
-	// response.headers["Content-Length"] = std::to_string(response.content.length());
 }
 
 

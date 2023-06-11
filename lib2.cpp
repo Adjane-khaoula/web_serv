@@ -44,6 +44,8 @@ std::string get_content_type(HttpRequest& req)
 	content_type["jpg"] = "image/jpeg";
 	content_type["gif"] = "image/gif";
 	content_type["txt"] = "text/plain";
+	content_type["mp4"] = "video/mp4";
+
 	if (content_type.find(type) != content_type.end())
 		return (content_type[type]);
 	return("application/octet-stream");
@@ -68,29 +70,26 @@ std::vector<Location>::iterator location(Config& config, HttpRequest& req, std::
 	return (server->routes.end());
 }
 
-std::string read_File(std::map<int,HttpResponse>& responses, int fd )
+std::string read_File(std::map<int,HttpResponse>& clients, int fd )
 {
-	std::ifstream file(responses[fd].path_file, std::ifstream::binary);
+	std::ifstream file(clients[fd].path_file, std::ifstream::binary);
 
-	if (file)
+	if (file )
 	{
 		file.seekg (0, file.end);
 		int length = file.tellg();
 		file.seekg (0, file.beg);
 		std::vector<char> buffer(100);
-
-		if (responses[fd].byte_reading < length) {
-		int chunkSize = std::min(BUFF_SIZE, length - responses[fd].byte_reading);
+		if (clients[fd].get_length == false)
+		{
+			clients[fd].get_length = true;
+			return (std::to_string(length));
+		}
+		if (clients[fd].byte_reading < length) {
+		int chunkSize = std::min(BUFF_SIZE, length - clients[fd].byte_reading);
 		buffer.resize(chunkSize);
-		file.read(buffer.data(), chunkSize);
-		// std::cout << "Reading " << is.gcount() << " characters... \n";
-		// std::cout << "all characters read successfully." << std::endl;
-		// std::cout << buffer.size() << std::endl;		
-		// for (int i = 0; i < is.gcount(); ++i) {
-		//     std::cout << "\033[32m" << buffer[i] << "\033[0m";
-		// }
-		// std::cout << std::endl;		
-		responses[fd].byte_reading += file.gcount();
+		file.read(buffer.data(), chunkSize);	
+		clients[fd].byte_reading += file.gcount();
 		if (file.gcount() == 0)
 		{
 			file.close();
@@ -98,11 +97,9 @@ std::string read_File(std::map<int,HttpResponse>& responses, int fd )
 		}
 		}
 		std::string content(buffer.begin(), buffer.end());
-		responses[fd].headers["Content-Length"] = std::to_string(file.gcount());
 		return (content);
 	}
 	return ("404");
-
 }
 
 std::string read_File_error(std::string Path)

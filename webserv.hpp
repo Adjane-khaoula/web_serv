@@ -15,7 +15,7 @@
 
 #define BACKLOG_SIZE 32
 #define HTTP_DEL "\r\n"
-#define BUFF_SIZE 100
+#define BUFF_SIZE 8419815
 // #define assert(cond) if (!(cond)) \
 // die("assertion failed: " #cond);
 
@@ -40,16 +40,9 @@ class HttpRequest {
 		std::string content;
 };
 
-class InfoClient {
-	public:
-		std::string    path_file;
-		std::streampos size_file;
-		// std::streampos startPos;
-		// std::streampos endPos;
-		HttpRequest request;
-};
 class HttpResponse {
 	public:
+		HttpResponse () : get_length(false){}
 		std::string version;
 		int code;
 		std::string reason_phrase;
@@ -58,17 +51,18 @@ class HttpResponse {
 		std::vector<Server>::iterator it;
 		std::vector<Location>::iterator it2;
 		std::string    path_file;
-		std::streampos size_file;
+		bool get_length;
+		int size_file;
 		HttpRequest request;
 		int byte_reading;
-		// std::map<int, InfoClient>	clients;
 };
 
 void die(std::string msg);
 
 // http
 std::vector<std::string> split(std::string s, std::string delimiter, unsigned int max_splits = -1);
-void parse_http_request(std::string req_str, HttpRequest &req);
+// int parse_http_request(std::string req_str, HttpRequest &req);
+int parse_http_request(Config config, std::string req_str, HttpRequest &req);
 std::string generate_http_response(HttpResponse &res);
 
 // epoll
@@ -82,7 +76,8 @@ void dump_config(Config config);
 void handle_http_response(const HttpRequest &req, HttpResponse &res);
 //----------------------------------------------------------------------------
 
-int				check_req_well_formed(int fd,Config& config, std::map<int,HttpResponse>& responses);
+// int				check_req_well_formed(int fd,Config& config, std::map<int,HttpResponse>& responses);
+int	check_req_line_headers(Config& config, HttpRequest &request);
 void			response_Http_Request(int status_code, HttpRequest& request, Config& config, HttpResponse& response, std::string path);
 void			response_Http_Request_error(int status_code, HttpRequest& request, Config& config, HttpResponse& response);
 std::string		res_content(int status_code, HttpRequest& request, Config& config, HttpResponse& response);

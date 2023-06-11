@@ -110,9 +110,15 @@
 // 	[599] = "Network connect timeout error",
 // };
 
-void parse_http_request(std::string req_str, HttpRequest &req) {
-	if (req_str.length() == 0)
-		return;
+int parse_http_request(Config config, std::string req_str, HttpRequest &req) {
+
+	int	status_code;
+	std::string client_max_body_size = "100M";//the maximum size limit in megabytes (MB) for the request body.
+	std::string client_max_body = client_max_body_size.substr(0, client_max_body_size.find("M"));//10
+
+	if (req_str.length() == 0 || req_str.find(HTTP_DEL HTTP_DEL) == std::string::npos)
+		return 400;
+		// return -1;
     std::vector<std::string> vec = split(req_str, HTTP_DEL);
     std::vector<std::string> headv = split(vec[0], " ");
 	size_t content_off = 0;
@@ -120,7 +126,6 @@ void parse_http_request(std::string req_str, HttpRequest &req) {
 	req.method = headv[0];
 	req.url = headv[1];
 	req.version = headv[2];
-	assert(req_str.find(HTTP_DEL HTTP_DEL) != std::string::npos);
 	content_off = req_str.find(HTTP_DEL HTTP_DEL) + sizeof(HTTP_DEL HTTP_DEL) - 1;
 
 	vec.erase(vec.begin());
@@ -132,7 +137,18 @@ void parse_http_request(std::string req_str, HttpRequest &req) {
    		std::vector<std::string> headerv = split(line, ":", 1);
 		req.headers[headerv[0]] = headerv[1];
 	}
-	req.content = req_str.substr(content_off);
+
+	// std::map<std::string, std::string>::iterator header_it = req.headers.find("Transfer-Encoding");
+	// std::cout <<"*****************>"<< header_it->second << std::endl;
+	status_code = check_req_line_headers(config, req);
+	if (status_code == 1 || status_code == 2 || status_code == 3)
+	{
+		req.content = req_str.substr(content_off);
+		// std::cout <<"*****************>"<< status_code << std::endl;
+		if (ft_atoi(req.headers["Content-Length"]) > ft_atoi(client_max_body) * 1024 * 1024)
+			return (413);
+	}
+	return (status_code);
 }
 
 // std::string generate_http_response(HttpResponse &res) {
