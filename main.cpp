@@ -82,6 +82,7 @@ int main(int argc, char **argv) {
 	int ret;
 
 	std::map<int,HttpResponse>	clients;
+
 	while (1) {
 		int fd = watchlist_wait_fd(wfd);
 
@@ -140,6 +141,7 @@ int main(int argc, char **argv) {
 			{
 				if (response_get(config, response))
 				{			
+					// std::cout << "***********************" << std::endl;
 					content_length = read_File(response);
 					if (content_length == "404")
 					{
@@ -200,12 +202,12 @@ close_socket:
 
 
 
-		// std::cout << "\033[32m"  << "method: " << request.method<< "\033[0m" << std::endl;
-		// std::cout << "\033[32m"  << "url: " << request.url<< "\033[0m" << std::endl;
-		// std::cout << "\033[32m"  << "version: " << request.version << "\033[0m" << std::endl;
-		// for (auto it = request.headers.begin(); it != request.headers.end(); it++) {
-		// 	std::cout << "\033[32m" << it->first << ' ' << it->second << "\033[0m" << std::endl;
-		// }
+// std::cout << "\033[32m"  << "method: " << request.method<< "\033[0m" << std::endl;
+// std::cout << "\033[32m"  << "url: " << request.url<< "\033[0m" << std::endl;
+// std::cout << "\033[32m"  << "version: " << request.version << "\033[0m" << std::endl;
+// for (auto it = request.headers.begin(); it != request.headers.end(); it++) {
+// 	std::cout << "\033[32m" << it->first << ' ' << it->second << "\033[0m" << std::endl;
+// }
 
 //add time out
 

@@ -42,7 +42,7 @@ int response_Http_Request(int status_code , Config& config, HttpResponse& respon
 	{
 		case 301:
 			response.reason_phrase = "Moved Permanently";
-			if (res_content_dir(status_code,fd , config, response))
+			if (res_content_dir(status_code, config, response))
 				return (1);
 			// response.headers["Content-Type"] = get_content_type(response.request);
 			// response.headers["location"] = "https://profile.intra.42.fr/";
@@ -58,12 +58,14 @@ int response_Http_Request(int status_code , Config& config, HttpResponse& respon
 int	response_get(Config& config, HttpResponse& response)
 {
 		std::string type_rep;
-
+		// std::cout << "*********************** dir = " << response.location_it->dir<< std::endl;
+		// std::cout << "***********************" << std::endl;
 		// if (!response.location_it->dir.empty())
 		// 	response.path_file = response.location_it->dir + response.request.url.substr(response.location_it->target.length(), response.request.url.length());
 		// else if (!response.server_it->root.empty())
 		// 	response.path_file= response.server_it->root + response.request.url.substr(response.location_it->target.length(), response.request.url.length());
 		get_path(response);
+		// response.path_file ="/Users/kadjane/Desktop/web_serv2/srcs/index.html";
 		type_rep = type_repo(response.path_file);
 		if (type_rep == "is_file")
 		{
@@ -83,9 +85,12 @@ return (0);
 
 int res_content_dir(int status_code, Config& config, HttpResponse& response)
 {
-	std::vector<std::string> content;
-	std::vector<std::string>::iterator content_it;
+	std::vector<std::string>			content;
+	std::vector<std::string>::iterator	content_it;
+	std::string							response_buffer;
+	std::string::iterator				url_it = response.request.url.end();
 	
+	(void) status_code;
 	if (content_dir(response.path_file, content) == "found")
 	{
 		if (!response.location_it->index.empty())
@@ -93,7 +98,7 @@ int res_content_dir(int status_code, Config& config, HttpResponse& response)
 			content_it = std::find(content.begin(), content.end(), response.location_it->index);
 			if (content_it != content.end())
 			{
-				if (response.request.url.end() - 1 != "/")
+				if (*(url_it - 1) != '/')
 					response.request.url += "/" + response.location_it->index;
 				else
 				{
@@ -110,7 +115,7 @@ int res_content_dir(int status_code, Config& config, HttpResponse& response)
 		content_it = std::find(content.begin(), content.end(), "index.html");
 		if (content_it != content.end())
 		{
-			if (response.request.url.end() - 1 != "/")
+			if (*(url_it - 1) != '/')// rbegin()
 				response.request.url += "/index.html";
 			else
 			{
@@ -127,7 +132,7 @@ int res_content_dir(int status_code, Config& config, HttpResponse& response)
 		{
 			for (std::vector<std::string>::iterator it = content.begin(); it != content.end(); it++)
 				response.content += *it + "\n";
-			response.headers["Content-Length"] = std::to_string(response.content.length())
+			response.headers["Content-Length"] = std::to_string(response.content.length());
 			response_buffer = generate_http_response(response);
 			send(response.fd, response_buffer.c_str(), response_buffer.length(), 0) ;
 			return (0);
@@ -136,7 +141,7 @@ int res_content_dir(int status_code, Config& config, HttpResponse& response)
 		{
 			ft_send_error(403, config, response);
 			// response_Http_Request_error(403, config, response);
-			return("error");
+			return(0);
 		}
 	}
 	ft_send_error(403, config, response);

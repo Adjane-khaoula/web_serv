@@ -143,7 +143,7 @@ std::string content_dir(std::string dir, std::vector<std::string>& content)
 	if (directory)
 	{
 		struct dirent* content_dir;
-        while (content_dir = readdir(directory))
+        while ((content_dir = readdir(directory)))
 			content.push_back(content_dir->d_name);
         closedir(directory);
 		return("found");
@@ -161,15 +161,15 @@ void	ft_send_error(int status_code, Config config, HttpResponse& response)
 	send(response.fd, response_buffer.c_str(), response_buffer.length(), 0);
 }
 
-void init_response(Config config, HttpResponse& response, HttpRequest& request, int fd)
+void init_response(Config& config, HttpResponse& response, HttpRequest& request, int fd)
 {
-	response.location_it = location(response.request, response.server_it);
-	response.server_it = server(config, response.request);
-	response.finish_reading = false;
-	response.get_length = false;
-	response.request = request;
-	response.byte_reading = 0;
 	response.fd = fd;
+	response.byte_reading = 0;
+	response.request = request;
+	response.get_length = false;
+	response.finish_reading = false;
+	response.server_it = server(config, response.request);
+	response.location_it = location(response.request, response.server_it);
 }
 
 void fill_response(int status_code, HttpResponse& response)
@@ -183,10 +183,12 @@ void fill_response(int status_code, HttpResponse& response)
 
 void get_path(HttpResponse& response)
 {
+// 	std::cout << "*********************** dir = " << response.location_it->dir << std::endl;
+// 	std::cout << "*********************** target = " << response.location_it->target << std::endl;
+// 	std::cout << "*********************** url = " << response.request.url << std::endl;
+// 	std::cout << "*********************** " << response.request.url.substr(response.location_it->target.length(), response.request.url.length()) << std::endl;
 	if (!response.location_it->dir.empty())
-		response.path_file = response.location_it->dir
-			+ response.request.url.substr(response.location_it->target.length(), response.request.url.length());
+		response.path_file = response.location_it->dir + response.request.url.substr(response.location_it->target.length(), response.request.url.length());
 	else if (!response.server_it->root.empty())
-		response.path_file= response.server_it->root
-			+ response.request.url.substr(response.location_it->target.length(), response.request.url.length());
+		response.path_file = response.server_it->root + response.request.url.substr(response.location_it->target.length(), response.request.url.length());
 }
