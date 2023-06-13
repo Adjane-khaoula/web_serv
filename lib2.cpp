@@ -1,8 +1,8 @@
 #include "webserv.hpp"
 #include "config.hpp"
 #include <iostream>
-#include <fstream>
-#include <sstream>
+// #include <fstream>
+// #include <sstream>
 // #include <sys/stat.h>
 
 int ft_atoi(std::string s) {
@@ -62,7 +62,7 @@ std::vector<Server>::iterator server(Config& config, HttpRequest& request)
 	return (config.servers.begin());
 }
 
-std::vector<Location>::iterator location(Config& config, HttpRequest& req, std::vector<Server>::iterator server)
+std::vector<Location>::iterator location(HttpRequest& req, std::vector<Server>::iterator server)
 {
 	for (std::vector<Location>::iterator it2 = server->routes.begin(); it2 != server->routes.end();it2++)
 		if (req.url.find(it2->target) != std::string::npos && req.url.find(it2->target) == 0)
@@ -70,31 +70,38 @@ std::vector<Location>::iterator location(Config& config, HttpRequest& req, std::
 	return (server->routes.end());
 }
 
-std::string read_File(std::map<int,HttpResponse>& clients, int fd )
+std::string read_File(HttpResponse& response)
 {
-	std::ifstream file(clients[fd].path_file, std::ifstream::binary);
+	std::ifstream file(response.path_file, std::ifstream::binary);
 
-	if (file )
+	if (file)
 	{
 		file.seekg (0, file.end);
 		int length = file.tellg();
 		file.seekg (0, file.beg);
-		std::vector<char> buffer(100);
-		if (clients[fd].get_length == false)
+		std::vector<char> buffer(length);
+		if (response.get_length == false)
 		{
-			clients[fd].get_length = true;
+			response.get_length = true;
 			return (std::to_string(length));
 		}
-		if (clients[fd].byte_reading < length) {
-		int chunkSize = std::min(BUFF_SIZE, length - clients[fd].byte_reading);
-		buffer.resize(chunkSize);
-		file.read(buffer.data(), chunkSize);	
-		clients[fd].byte_reading += file.gcount();
-		if (file.gcount() == 0)
+		if (response.byte_reading < length)
 		{
-			file.close();
-			return ("finish_reading");
-		}
+			// int chunkSize = std::min(BUFF_SIZE, length - response.byte_reading);
+			int chunkSize = std::min(length, length - response.byte_reading);
+			buffer.resize(chunkSize);
+			file.read(buffer.data(), chunkSize);
+			response.byte_reading += file.gcount();
+			if (file.gcount() == length)
+			{
+				response.finish_reading = true;
+				file.close();
+			}
+			// if (file.gcount() == 0)
+			// {
+			// file.close();
+			// 	return ("finish_reading");
+			// }
 		}
 		std::string content(buffer.begin(), buffer.end());
 		return (content);
@@ -107,10 +114,8 @@ std::string read_File_error(std::string Path)
 	std::ifstream file(Path);
 	std::stringstream buffer;
 
-
 	if (!file)
 		return ("not found");
-	// std::cout << "*******> " << Path << std::endl;
 	buffer << file.rdbuf();
 	return buffer.str();
 }
@@ -119,13 +124,10 @@ std::string type_repo(std::string path)
 {
 	struct stat info;
 
-	// path = "/Users/kadjane/Desktop/web_serv2/srcs";
-	// std::cout << "path == {" << path<< "}" << std::endl;
 	if (*(path.end() - 1) == '/')
 		return ("is_directory with /");
 	if (!stat(path.c_str(), &info))
 	{
-		// std::cout << "/////////////////////////////" << std::endl;
 		if (S_ISREG(info.st_mode))
 			return ("is_file");
 		if (S_ISDIR(info.st_mode))
@@ -141,12 +143,50 @@ std::string content_dir(std::string dir, std::vector<std::string>& content)
 	if (directory)
 	{
 		struct dirent* content_dir;
-        while ((content_dir = readdir(directory)))
+        while (content_dir = readdir(directory))
 			content.push_back(content_dir->d_name);
         closedir(directory);
 		return("found");
 	}
 	return ("not found");
-	// else
-		// std::cout << "/////////////////////////// ma t7alch\n";
+}
+
+void	ft_send_error(int status_code, Config config, HttpResponse& response)
+{
+	std::string		response_buffer;
+
+	response_Http_Request_error(status_code, config, response);
+	response_buffer = generate_http_response(response);
+	response_buffer += response.content;
+	send(response.fd, response_buffer.c_str(), response_buffer.length(), 0);
+}
+
+void init_response(Config config, HttpResponse& response, HttpRequest& request, int fd)
+{
+	response.location_it = location(response.request, response.server_it);
+	response.server_it = server(config, response.request);
+	response.finish_reading = false;
+	response.get_length = false;
+	response.request = request;
+	response.byte_reading = 0;
+	response.fd = fd;
+}
+
+void fill_response(int status_code, HttpResponse& response)
+{
+	response.version = response.request.version;
+	response.code = status_code;
+	response.headers["Connection"] = "keep-alive";
+	response.headers["Content-Type"] = get_content_type(response.request);
+
+}
+
+void get_path(HttpResponse& response)
+{
+	if (!response.location_it->dir.empty())
+		response.path_file = response.location_it->dir
+			+ response.request.url.substr(response.location_it->target.length(), response.request.url.length());
+	else if (!response.server_it->root.empty())
+		response.path_file= response.server_it->root
+			+ response.request.url.substr(response.location_it->target.length(), response.request.url.length());
 }

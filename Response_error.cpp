@@ -8,16 +8,13 @@
 int	check_req_line_headers(Config& config, HttpRequest &request)
 {
 	std::vector<Server>::iterator server_it = server(config, request);
-	std::vector<Location>::iterator location_it = location(config, request, server_it);
+	std::vector<Location>::iterator location_it = location(request, server_it);
 	std::map<std::string, std::string>::iterator header_it = request.headers.find("Transfer-Encoding");
 	std::vector<std::string>::iterator methods_it;
 	std::string client_max_body_size = "100M";//the maximum size limit in megabytes (MB) for the request body.
 	std::string client_max_body = client_max_body_size.substr(0, client_max_body_size.find("M"));//10
-	// std::cout <<"*****************>"<< header_it->second.erase(0, 1) << std::endl;
 	if (header_it != request.headers.end() && header_it->second.erase(0, 1) != "chunked")
-	{
 		return (501);//not implemented
-	}
 	if (header_it == request.headers.end()
 		&& request.headers.find("Content-Length") == request.headers.end() && request.method == "POST")
 		return(400);//Bad Request
@@ -26,6 +23,8 @@ int	check_req_line_headers(Config& config, HttpRequest &request)
 		return(400);//Bad Request
 	if (request.url.length() > 2048)
 		return (414);//Request-URI Too Long
+	// if (ft_atoi(request.headers["Content-Length"]) > ft_atoi(client_max_body) * 1024 * 1024)
+	// 	return (413);
 	if(location_it != server_it->routes.end())
 	{
 		for (methods_it = location_it->methods.begin(); methods_it != location_it->methods.end(); methods_it++)
@@ -48,61 +47,60 @@ int	check_req_line_headers(Config& config, HttpRequest &request)
 }
 
 
-void response_Http_Request_error(int status_code, HttpRequest& request, Config& config, HttpResponse& response)
+void response_Http_Request_error(int status_code, Config& config, HttpResponse& response)
 {
-	response.version = request.version;
-	response.code = status_code;
+	// response.version = response.request.version;
+	// response.code = status_code;
+	fill_response(status_code, response);
 	switch(status_code) {
 		case 501 :
 			response.reason_phrase = "not implemented";
-			std::cout <<"*****************>"<< response.reason_phrase << std::endl;
-			response.content = res_content(status_code, request, config, response);
-			std::cout <<"*****************>"<< response.content << std::endl;
+			response.content = res_content(status_code, config, response);
 			if (response.content == "not found")
 				response.content = read_File_error("www/501.html");
-			response.headers["Content-Type"] = get_content_type(request);
+			// response.headers["Content-Type"] = get_content_type(response.request);
 			break ;
 		case 400:
 			response.reason_phrase = "Bad Request";
-			response.content = res_content(status_code, request, config, response);
+			response.content = res_content(status_code, config, response);
 			if (response.content == "not found")
 				response.content = read_File_error("www/400.html");
-			response.headers["Content-Type"] = get_content_type(request);
+			// response.headers["Content-Type"] = get_content_type(response.request);
 			break ;
 		case 414:
 			response.reason_phrase = "Request-URI Too Long";
-			response.content = res_content(status_code, request, config, response);
+			response.content = res_content(status_code, config, response);
 			if (response.content == "not found")
 				response.content = read_File_error("www/414.html");
-			response.headers["Content-Type"] = get_content_type(request);
+			// response.headers["Content-Type"] = get_content_type(response.request);
 			break ;
 		case 413:
 			response.reason_phrase = "Request Entity Too Large";
-			response.content = res_content(status_code, request, config, response);
+			response.content = res_content(status_code, config, response);
 			if (response.content == "not found")
 				response.content = read_File_error("www/413.html");
-			response.headers["Content-Type"] = get_content_type(request);
+			// response.headers["Content-Type"] = get_content_type(response.request);
 			break ;
 		case 404:
 			response.reason_phrase = "Not Found";
-			response.content = res_content(status_code, request, config, response);
+			response.content = res_content(status_code, config, response);
 			if (response.content == "not found")
 				response.content = read_File_error("www/404.html");
-			response.headers["Content-Type"] = get_content_type(request);
+			// response.headers["Content-Type"] = get_content_type(response.request);
 			break ;
 		case 405:
 			response.reason_phrase = "Method Not Allowed";
-			response.content = res_content(status_code, request, config, response);
+			response.content = res_content(status_code, config, response);
 			if (response.content == "not found")
 				response.content = read_File_error("www/405.html");
-			response.headers["Content-Type"] = get_content_type(request);
+			// response.headers["Content-Type"] = get_content_type(response.request);
 			break;
 		case 403:
 				response.reason_phrase = "403 Forbidden";
-			response.content = res_content(status_code, request, config, response);
+			response.content = res_content(status_code, config, response);
 			if (response.content == "not found")
 				response.content = read_File_error("www/403.html");
-			response.headers["Content-Type"] = get_content_type(request);
+			// response.headers["Content-Type"] = get_content_type(response.request);
 	}
 	response.headers["Content-Length"] = std::to_string(response.content.length());
 }
