@@ -58,14 +58,7 @@ int response_Http_Request(int status_code , Config& config, HttpResponse& respon
 int	response_get(Config& config, HttpResponse& response)
 {
 		std::string type_rep;
-		// std::cout << "*********************** dir = " << response.location_it->dir<< std::endl;
-		// std::cout << "***********************" << std::endl;
-		// if (!response.location_it->dir.empty())
-		// 	response.path_file = response.location_it->dir + response.request.url.substr(response.location_it->target.length(), response.request.url.length());
-		// else if (!response.server_it->root.empty())
-		// 	response.path_file= response.server_it->root + response.request.url.substr(response.location_it->target.length(), response.request.url.length());
 		get_path(response);
-		// response.path_file ="/Users/kadjane/Desktop/web_serv2/srcs/index.html";
 		type_rep = type_repo(response.path_file);
 		if (type_rep == "is_file")
 		{
@@ -80,10 +73,12 @@ int	response_get(Config& config, HttpResponse& response)
 			if (response_Http_Request(301,config, response))
 				return (1);
 		}
+		else
+			ft_send_error(404, config, response);
 return (0);
 }
 
-int res_content_dir(int status_code, Config& config, HttpResponse& response)
+int	res_content_dir(int status_code, Config& config, HttpResponse& response)
 {
 	std::vector<std::string>			content;
 	std::vector<std::string>::iterator	content_it;
@@ -108,7 +103,6 @@ int res_content_dir(int status_code, Config& config, HttpResponse& response)
 				}
 				get_path(response);
 				response.headers["Content-Type"] = get_content_type(response.request);
-				// response_get(config, response);
 				return(1) ;
 			}
 		}
@@ -125,7 +119,6 @@ int res_content_dir(int status_code, Config& config, HttpResponse& response)
 			}
 			get_path(response);
 			response.headers["Content-Type"] = get_content_type(response.request);
-			// response_get(config, response);
 			return(1) ;
 		}
 		if (response.location_it->autoindex)
@@ -140,31 +133,9 @@ int res_content_dir(int status_code, Config& config, HttpResponse& response)
 		else
 		{
 			ft_send_error(403, config, response);
-			// response_Http_Request_error(403, config, response);
 			return(0);
 		}
 	}
 	ft_send_error(403, config, response);
-	// response_Http_Request_error(404, config, response);
 	return(0);
 }
-
-// std::string	res_content_file(int status_code,int fd, Config& config, HttpResponse& response)
-// {
-// 	if (status_code == 200)
-// 	{
-// 		std::string content = read_File(path);
-// 		if (content == "not found")
-// 		{
-// 			response_Http_Request_error(404, request, config, response);
-// 			return ("");
-// 		}
-// 		else
-// 			return (content);
-// 	}
-// }
-// default url is "/" sot we shod met location "/"
-// add return redirection
-// add client_max_body_size 10M
-// autoindex = on Turn on or off directory listing.
-//and Set a default file to answer if the request is a directory.

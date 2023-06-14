@@ -82,7 +82,6 @@ int main(int argc, char **argv) {
 	int ret;
 
 	std::map<int,HttpResponse>	clients;
-
 	while (1) {
 		int fd = watchlist_wait_fd(wfd);
 
@@ -131,26 +130,15 @@ int main(int argc, char **argv) {
 		if (clients.empty() || clients_it == clients.end())
 		{
 			init_response(config, response, request, fd);
-			// response.finish_reading = false;
-			// response.byte_reading = 0;
-			// response.get_length = false;
-			// response.request = request;
-			// response.server_it = server(config, response.request);
-			// response.location_it = location(response.request, response.server_it);
 			if (status_code == 1)
 			{
 				if (response_get(config, response))
-				{			
-					// std::cout << "***********************" << std::endl;
+				{
 					content_length = read_File(response);
 					if (content_length == "404")
 					{
 						ft_send_error(404, config, response);
 						goto close_socket;
-						// response_Http_Request_error(404, config, response);
-						// response_buffer = generate_http_response(response);
-						// response_buffer += response.content;
-						// send(fd, response_buffer.c_str(), response_buffer.length(), 0) ;
 					}
 					else
 					{
@@ -172,12 +160,7 @@ int main(int argc, char **argv) {
 			{
 				ft_send_error(status_code, config, response);
 				goto close_socket;
-				// response_Http_Request_error(status_code, config, response);
-				// response_buffer = generate_http_response(response);
-				// response_buffer += response.content;
-				// send(fd, response_buffer.c_str(), response_buffer.length(), 0) ;
 			}
-
 			// else if (status_code == 2)
 			// 	response_post(req, config, response);
 			// else if (status_code == 3)
