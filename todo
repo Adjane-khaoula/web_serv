@@ -29,7 +29,5 @@ if method = Get => ignore the body
 handel transfer encoding = chunked
 add client_max_body_size 10M
 
-check dir
-handel 301 return
 handel 301 rewrite
-if location not found tak a root if not found 404
+handel 301 return

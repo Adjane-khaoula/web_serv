@@ -1,10 +1,3 @@
-// #include <stdio.h>
-// #include <stdlib.h>
-// #include <unistd.h>
-// #include <sys/socket.h>
-// #include <arpa/inet.h>
-// #include <string>
-// #include <iostream>
 #ifdef __APPLE__
 #include <sys/event.h>
 #elif __linux__
@@ -117,7 +110,10 @@ int main(int argc, char **argv) {
 		if (parse_http_request(request_buffer, request) < 0)
 			status_code = 400;
 		else
+		{
+			response.old_url = request.url;
 			status_code = check_req_line_headers(config, request);
+		}
 		// std::cout << "status_code " << status_code << std::endl;
 		// status_code = parse_http_request(config, request_buffer, request);
 		// if (status_code != 1 || status_code != 2 || status_code != 3)
@@ -138,12 +134,12 @@ int main(int argc, char **argv) {
 		if (clients.empty() || clients_it == clients.end())
 		{
 			init_response(config, response, request, fd);
-			std::cout << "status_code = " << status_code << std::endl;
+
 			if (status_code == 1)
 			{
 				if (response_get(config, response))
 				{
-					std::cout << "path == " << response.path_file << std::endl;
+					// std::cout << "path == " << response.path_file << std::endl;
 					content_length = read_File(response);
 					if (content_length == "404")
 					{
@@ -153,11 +149,14 @@ int main(int argc, char **argv) {
 					else
 					{
 						response.headers["content-length"] = content_length;
+							response.headers["Transfer-Encoding"] = "chunked";
 						response_buffer = generate_http_response(response);
-						send(response.fd, response_buffer.c_str(), response_buffer.length(), 0) ;
+						// std::cout << "******> {" << response_buffer << "}"<< std::endl;
+						send(response.fd, response_buffer.c_str(), response_buffer.length(), 0);
 						response.content = read_File(response);
 						if (response.finish_reading)
 						{
+							// std::cout << "******> {" << response.content << "}"<< std::endl;
 							send(response.fd, response.content.c_str(), response.content.length(), 0);
 							goto close_socket;
 						}
@@ -188,17 +187,8 @@ close_socket:
 			clients.erase(fd);
 			watchlist_del_fd(wfd, fd);
 			close(fd);
-			continue;
 	}
 }
 
 
 
-
-
-//add time out
-
-
-
-
-//type content

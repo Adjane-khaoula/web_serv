@@ -67,5 +67,9 @@
 		"utility": "cpp",
 		"vector": "cpp",
 		"filesystem": "cpp"
-	}
+	},
+	"cSpell.words": [
+		"creturn",
+		"redirections"
+	]
 }
