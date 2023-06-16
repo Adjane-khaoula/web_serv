@@ -22,10 +22,10 @@ int ft_atoi(std::string s) {
 	return (sign * nbr);
 } 
 
-std::string get_content_type(HttpRequest& req)
+std::string get_content_type(std::string path)
 {
 	std::map<std::string, std::string> content_type;
-	std::string type = req.url.substr(req.url.rfind(".") + 1,req.url.length());
+	std::string type = path.substr(path.rfind(".") + 1,path.length());
 
 	content_type["html"] = "text/html";
 	content_type["htm"] = "text/html";
@@ -109,12 +109,6 @@ std::vector<Location>::iterator location(Config& config, HttpRequest& req, std::
 
 std::string read_File(HttpResponse& response)
 {
-	// // main() {
-	// //    int number = 255;  // The integer you want to convert	
-	// //    std::stringstream stream;
-	// //    stream << std::hex << number;  // Convert the integer to hexadecimal	
-	// //    std::string hexString = stream.str();  // Get the resulting hexadecimal string	
-	// //    std::cout << "Hexadecimal representation: " << hexString << std::endl;	
 
 	std::ifstream file;
 	std::string res = "";
@@ -182,7 +176,7 @@ std::string type_repo(std::string path)
 {
 	struct stat info;
 
-	// std::cout << "response.path_file = " << path << std::endl;
+	std::cout << "response.path_file = " << path << std::endl;
 	// std::cout << "*(path.end() - 1) = " << *(path.end() - 1) << std::endl;
 	if (*(path.end() - 1) == '/')
 		return ("is_directory");
@@ -195,17 +189,62 @@ std::string type_repo(std::string path)
 	}
 	return ("not found");
 }
+// int main() {
+//     std::ofstream file("links.html"); // Open the file for writing
 
-std::string content_dir(std::string dir, std::vector<std::string>& content)
+//     if (!file) {
+//         std::cerr << "Error creating the file." << std::endl;
+//         return 1;
+//     }
+
+//     file << "<html>\n";
+//     file << "<body>\n";
+//     file << "<ol>\n";
+//     file << "<li><a href=\"http://www.example.com\">Example Website</a></li>\n";
+//     file << "<li><a href=\"http://www.google.com\">Google</a></li>\n";
+//     file << "<li><a href=\"http://www.openai.com\">OpenAI</a></li>\n";
+//     file << "</ol>\n";
+//     file << "</body>\n";
+//     file << "</html>\n";
+
+//     file.close(); // Close the file
+
+//     std::cout << "File created successfully." << std::endl;
+
+//     return 0;
+// }
+
+std::string content_dir(std::string dir,HttpResponse& response)
 {
 	DIR* directory = opendir(dir.c_str());
 
 	if (directory)
 	{
 		struct dirent* content_dir;
-        while ((content_dir = readdir(directory)))
-			content.push_back(content_dir->d_name);
-        closedir(directory);
+		std::ofstream file("content_dir.html");
+		if (file)
+		{
+			file << "<!DOCTYPE html>\n";
+			file << "<html>\n";
+			file << "<head>\n";
+			file << "<title>autoindex</title>\n";
+			file << "</head>\n";
+			file << "<body>\n";
+			file << "<h1>" << "Index of " << response.request.url <<"</h1>\n";
+			file << "<ul>\n";
+			while ((content_dir = readdir(directory)))
+			{
+				if (strcmp(content_dir->d_name, ".") && strcmp(content_dir->d_name , "..")
+						&& strcmp(content_dir->d_name, ".DS_Store"))
+					file << "<li><a href=\"" << "http://"<< response.server_it->ip << ":" << response.server_it->port << response.request.url << '/' << content_dir->d_name << "\">" << content_dir->d_name << "</a></li>\n";
+				// content.push_back(content_dir->d_name);
+			}
+			file << "</ul>\n";
+			file << "</body>\n";
+			file << "</html>\n";
+		}
+		file.close();
+		closedir(directory);
 		return("found");
 	}
 	return ("not found");
@@ -238,23 +277,29 @@ void fill_response(int status_code, HttpResponse& response)
 	response.code = status_code;
 	response.reason_phrase = get_reason_phase(status_code);
 	response.headers["Connection"] = "keep-alive";
-	response.headers["Content-Type"] = get_content_type(response.request);
+	response.headers["Content-Type"] = get_content_type(response.path_file);
 }
 
 int get_path(Config config, HttpResponse& response)
 {
-	// std::cout << "*********************** dir = " << response.location_it->dir << std::endl;
-	// std::cout << "*********************** target = " << response.location_it->target << std::endl;
-	// std::cout << "*********************** url = " << response.request.url << std::endl;
-	// std::cout << "*********************** " << response.request.url.substr(response.location_it->target.length() - 1, response.request.url.length()) << std::endl;
-	if (!response.location_it->dir.empty())
+	std::string target = response.location_it->target;
+	std::string dir = response.location_it->dir;
+	std::string url = response.request.url;
+	std::string root = response.server_it->root;
+	std::cout << "*********************** dir = " << response.location_it->dir << std::endl;
+	std::cout << "*********************** target = " << response.location_it->target << std::endl;
+	std::cout << "*********************** url = " << response.request.url << std::endl;
+	std::cout << "*********************** " << response.request.url.substr(response.location_it->target.length() - 1, response.request.url.length()) << std::endl;
+
+	size_t	find = url.find(target);
+	if (!dir.empty())
 	{
-		response.path_file = response.location_it->dir + response.request.url.substr(response.location_it->target.length(), response.request.url.length());
+		response.path_file = url.substr(0, find) + dir + url.substr(find + target.length(), url.length());
 		return (1);
 	}
 	if (!response.server_it->root.empty())
 	{
-		response.path_file = response.server_it->root + response.request.url.substr(response.location_it->target.length(), response.request.url.length());
+		response.path_file = url.substr(0, find) + root + url.substr(find + target.length(), url.length());
 		return (1);
 	}
 	ft_send_error(404, config, response);
@@ -294,28 +339,40 @@ std::string	ft_tostring(int nbr)
 	return (str);
 }
 
-int	response_redirect(HttpResponse& response)
+int	response_redirect(HttpResponse& response, Config& config)
 {
+	std::string type_rep;
 	std::string	response_buffer;
-
-	std::cout <<"response.location_it->creturn.code = " << response.location_it->creturn.code << std::endl;
-	std::cout <<"response.location_it->creturn.to = " << response.location_it->creturn.to << std::endl;
-	response.version = response.request.version;
-	if (response.location_it->creturn.code)
+	// std::cout <<"response.location_it->creturn.code = " << response.location_it->creturn.code << std::endl;
+	// std::cout <<"response.location_it->creturn.to = " << response.location_it->creturn.to << std::endl;
+	std::cout << "!!!!!!!!!!!!!!!!!!!!!" << std::endl;
+	response.path_file = response.location_it->creturn.to;
+	type_rep = type_repo(response.path_file);
+	std::cout << "response.path_file = "<< response.path_file << std::endl;
+	std::cout << "type_repo = "<< type_rep << std::endl;
+	if (type_rep == "is_file")
 	{
-		response.code = response.location_it->creturn.code;
-		response.reason_phrase = get_reason_phase(response.location_it->creturn.code);
+		if (response.location_it->cgi.empty())
+		{
+			response_Http_Request(200, config, response);
+			return (1);
+		}
+	}
+	else if (type_rep == "is_directory")
+	{
+		if (response_Http_Request(301,config, response))
+			return (1);
 	}
 	else
 	{
-		response.code = 302;
-		response.reason_phrase = get_reason_phase(302);
-	}
-		// fill_response(302, response);
-	response.headers["location"] = response.location_it->creturn.to;
-	response_buffer = generate_http_response(response);
-	std::cout << "******> {" << response_buffer << "}"<< std::endl;
-	send(response.fd, response_buffer.c_str(), response_buffer.size(), 0);
+		if (response.location_it->creturn.code)
+			fill_response(response.location_it->creturn.code, response);
+		else
+			fill_response(302, response);
+		response.headers["location"] = response.location_it->creturn.to;
+		response_buffer = generate_http_response(response);
+		std::cout << "******> {" << response_buffer << "}"<< std::endl;
+		send(response.fd, response_buffer.c_str(), response_buffer.size(), 0);
+	};
 	return (0);
-		// fill_response(response.location_it->creturn.code, response);
 }

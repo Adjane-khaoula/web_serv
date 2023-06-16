@@ -124,15 +124,16 @@ int main(int argc, char **argv) {
 		// 	send(fd, response_buffer.c_str(), response_buffer.length(), 0) ;
 		// }
 		////////////////////////////////////////////////////////////////////////////////////////
-		std::cout << "\033[32m"  << "method: " << request.method<< "\033[0m" << std::endl;
-		std::cout << "\033[32m"  << "url: " << request.url<< "\033[0m" << std::endl;
-		std::cout << "\033[32m"  << "version: " << request.version << "\033[0m" << std::endl;
-		for (auto it = request.headers.begin(); it != request.headers.end(); it++) {
-			std::cout << "\033[32m" << it->first << ' ' << it->second << "\033[0m" << std::endl;
+		// std::cout << "\033[32m"  << "method: " << request.method<< "\033[0m" << std::endl;
+		// std::cout << "\033[32m"  << "url: " << request.url<< "\033[0m" << std::endl;
+		// std::cout << "\033[32m"  << "version: " << request.version << "\033[0m" << std::endl;
+		// for (auto it = request.headers.begin(); it != request.headers.end(); it++) {
+		// 	std::cout << "\033[32m" << it->first << ' ' << it->second << "\033[0m" << std::endl;
+		// }
 		///////////////////////////////////////////////////////////////////////////////////////////
-		}
 		if (clients.empty() || clients_it == clients.end())
 		{
+			// std::cout << "@@@@@@@@@@@@@@@@@@" << std::endl;
 			init_response(config, response, request, fd);
 
 			if (status_code == 1)
@@ -149,10 +150,11 @@ int main(int argc, char **argv) {
 					else
 					{
 						response.headers["content-length"] = content_length;
-							response.headers["Transfer-Encoding"] = "chunked";
+						response.headers["Transfer-Encoding"] = "chunked";
 						response_buffer = generate_http_response(response);
 						// std::cout << "******> {" << response_buffer << "}"<< std::endl;
 						send(response.fd, response_buffer.c_str(), response_buffer.length(), 0);
+						// std::cout << "++++++++++++>" << response.path_file << std::endl;
 						response.content = read_File(response);
 						if (response.finish_reading)
 						{

@@ -59,7 +59,10 @@ int	response_get(Config& config, HttpResponse& response)
 	std::string type_rep;
 
 	if (!response.location_it->creturn.to.empty())
-		return (response_redirect(response));
+	{
+		// std::cout << "@@@@@@@@@@@@@@@@@@" << std::endl;
+		return (response_redirect(response, config));
+	}
 	// {
 		// if (response.creturn.code)
 		// 	fill_response(response.creturn.code, response);
@@ -70,7 +73,6 @@ int	response_get(Config& config, HttpResponse& response)
 		// send(response.fd, response_buffer.c_str(), response_buffer.length(), 0);
 		// return (0);
 	// }
-	std::cout << "@@@@@@@@@@@@@@@@@@" << std::endl;
 	if (get_path(config, response))
 	{
 		type_rep = type_repo(response.path_file);
@@ -85,12 +87,14 @@ int	response_get(Config& config, HttpResponse& response)
 		}
 		else if (type_rep == "is_directory")
 		{
+			// std::cout << "++++++++++++>" << response.path_file << std::endl;
 			if (response_Http_Request(301,config, response))
 				return (1);
 		}
 		else
 			ft_send_error(404, config, response);
 	}
+	// ft_send_error(404, config, response);
 	return (0);
 }
 
@@ -102,8 +106,7 @@ int	res_content_dir(int status_code, Config& config, HttpResponse& response)
 	// std::string::iterator				url_it = response.request.url.end();
 	
 	(void) status_code;
-	std::cout << "response.path_file = " << response.path_file << std::endl;
-	if (content_dir(response.path_file, content) == "found")
+	if (content_dir(response.path_file, response) == "found")
 	{
 		if (!response.location_it->index.empty())
 		{
@@ -119,13 +122,14 @@ int	res_content_dir(int status_code, Config& config, HttpResponse& response)
 					response.path_file += response.location_it->index;
 				}
 				// get_path(config, response);
-				response.headers["Content-Type"] = get_content_type(response.request);
+				response.headers["Content-Type"] = get_content_type(response.path_file);
 				return(1) ;
 			}
 		}
 		content_it = std::find(content.begin(), content.end(), "index.html");
 		if (content_it != content.end())
 		{
+			// std::cout << "@@@@@@@@@@@@@@@@@@" << std::endl;
 			// std::cout << "*********> {"<< response.location_it->target << "}" << std::endl;
 			if (*response.path_file.rbegin() != '/')
 				response.path_file += "/index.html";
@@ -135,19 +139,24 @@ int	res_content_dir(int status_code, Config& config, HttpResponse& response)
 				response.reason_phrase = "ok";
 				response.path_file += "index.html";
 			}
-			// get_path(config, response);
-			response.headers["Content-Type"] = get_content_type(response.request);
+			// std::cout << "response.path_file = " << response.path_file << std::endl;
+			response.headers["Content-Type"] = get_content_type(response.path_file);
 			return(1) ;
 		}
 		if (response.location_it->autoindex)
 		{
-			for (std::vector<std::string>::iterator it = content.begin(); it != content.end(); it++)
-				response.content += *it + "\n";
-			response.headers["Content-Length"] = ft_tostring(response.content.length());
-			response_buffer = generate_http_response(response);
-			response_buffer += response.content;
-			send(response.fd, response_buffer.c_str(), response_buffer.length(), 0) ;
-			return (0);
+			// for (std::vector<std::string>::iterator it = content.begin(); it != content.end(); it++)
+			// 	response.content += *it + "\n";
+			// response.headers["Content-Length"] = ft_tostring(response.content.length());
+			// response_buffer = generate_http_response(response);
+			// response_buffer += response.content;
+			// send(response.fd, response_buffer.c_str(), response_buffer.length(), 0) ;
+			// if (*response.path_file.rbegin() != '/')
+			response.path_file = "content_dir.html";
+			fill_response(200, response);
+			// else
+				// response.path_file += "content_dir.html";
+			return (1);
 		}
 		else
 		{

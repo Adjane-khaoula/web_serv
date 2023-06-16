@@ -88,4 +88,3 @@ void response_Http_Request_error(int status_code, Config& config, HttpResponse& 
 	response.headers["Content-Length"] = ft_tostring(response.content.length());
 }
 
-// 0.0.0.0:8080/srcs/
