@@ -30,3 +30,5 @@ handel transfer encoding = chunked
 add client_max_body_size 10M
 
 in case autoindex the program exit
+
+add content a lhmara

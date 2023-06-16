@@ -158,8 +158,9 @@ int main(int argc, char **argv) {
 						response.content = read_File(response);
 						if (response.finish_reading)
 						{
-							// std::cout << "******> {" << response.content << "}"<< std::endl;
+							std::cout << "******> { "<< std::endl;
 							send(response.fd, response.content.c_str(), response.content.length(), 0);
+							std::cout << "----------> { "<< std::endl;
 							goto close_socket;
 						}
 					}

@@ -5,16 +5,6 @@
 #include <sstream>
 #include <dirent.h>
 
-std::string generate_http_response(HttpResponse &res)
-{
-	std::stringstream res_str;
-	res_str << res.version << " " << res.code<< " " << res.reason_phrase << HTTP_DEL;
-	for (std::map<std::string, std::string>::iterator it = res.headers.begin(); it != res.headers.end(); it++)
-		res_str << it->first << ": " << it->second << HTTP_DEL;
-	res_str << HTTP_DEL;
-	// res_str << res.content;
-	return res_str.str();
-}
 
 std::string		res_content(int status_code, Config& config, HttpResponse& response)
 {
@@ -152,6 +142,7 @@ int	res_content_dir(int status_code, Config& config, HttpResponse& response)
 			// response_buffer += response.content;
 			// send(response.fd, response_buffer.c_str(), response_buffer.length(), 0) ;
 			// if (*response.path_file.rbegin() != '/')
+			std::cout << "@@@@@@@@@@@@@@@@@@@@@@@@@" << std::endl;
 			response.path_file = "content_dir.html";
 			fill_response(200, response);
 			// else
