@@ -158,3 +158,44 @@ int	res_content_dir(int status_code, Config& config, HttpResponse& response)
 	ft_send_error(404, config, response);
 	return(0);
 }
+
+int response_post(Config& config, HttpResponse& response)
+{
+	std::string upload_path = "uploads";
+	std::string type_rep;
+
+	type_rep = type_repo(upload_path);
+	if (type_rep == "is_file" || type_rep == "not found")
+	{
+		ft_send_error(404,config, response);
+		return (0);
+	}
+	std::string file_name = generate_filename();
+	std::ofstream file(file_name);
+	if (file)
+	{
+		file << response.request.content;
+		if(!(std::rename(file_name.c_str(), upload_path.c_str())));
+		{
+			response.path_file = "www/201.html";
+			fill_response(201, response); // add 201 at status code 
+			response.content = read_File_error(response.path_file);
+			response.headers["content-length"] = response.content.length();
+		}
+	}
+	else
+	{
+		ft_send_error(404,config, response);
+		return (0);
+	}
+}
+
+std::string	generate_filename()
+{
+	std::string	file_name = "file";
+	static int num = 0;
+	std::string num_to_str = ft_tostring(num++);
+
+	file_name += "_" + num_to_str;
+	return (file_name);
+}
