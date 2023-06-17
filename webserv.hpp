@@ -105,7 +105,7 @@ int				ft_atoi(std::string s);
 int				response_get(Config& config, HttpResponse& response);
 std::string get_content_type(std::string path);
 std::string		type_repo(std::string path);
-std::string		content_dir(std::string dir,HttpResponse& response);
+std::string		content_dir(std::string dir,HttpResponse& response, std::vector<std::string>& content);
 int				res_content_dir(int status_code, Config& config, HttpResponse& response);
 std::string		res_content_file(int status_code, HttpRequest& request, Config& config, HttpResponse& response, std::string path);
 std::string		read_File(HttpResponse& response);

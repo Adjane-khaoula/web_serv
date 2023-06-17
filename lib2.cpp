@@ -95,8 +95,7 @@ std::vector<Location>::iterator location(Config& config, HttpRequest& req, std::
 	// return (server->routes.end());
 }
 
-
-std::string content_dir(std::string dir,HttpResponse& response)
+std::string content_dir(std::string dir,HttpResponse& response, std::vector<std::string>& content)
 {
 	DIR* directory = opendir(dir.c_str());
 
@@ -121,7 +120,9 @@ std::string content_dir(std::string dir,HttpResponse& response)
 				{
 					if (*response.request.url.rbegin() != '/')
 						file << "<li><a href=\"" << "http://"<< response.server_it->ip << ":" << response.server_it->port << response.request.url << '/' << content_dir->d_name << "\">" << content_dir->d_name << "</a></li>\n";
-					file << "<li><a href=\"" << "http://"<< response.server_it->ip << ":" << response.server_it->port << response.request.url << content_dir->d_name << "\">" << content_dir->d_name << "</a></li>\n";
+					else
+						file << "<li><a href=\"" << "http://"<< response.server_it->ip << ":" << response.server_it->port << response.request.url << content_dir->d_name << "\">" << content_dir->d_name << "</a></li>\n";
+					content.push_back(content_dir->d_name);
 				}
 			}
 			file << "</ul>\n" << "</body>\n" << "</html>\n";
@@ -144,7 +145,6 @@ void	ft_send_error(int status_code, Config config, HttpResponse& response)
 	response_buffer += response.content;
 	send(response.fd, response_buffer.c_str(), response_buffer.length(), 0);
 }
-
 
 
 int	response_redirect(HttpResponse& response, Config& config)

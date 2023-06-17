@@ -96,7 +96,7 @@ int	res_content_dir(int status_code, Config& config, HttpResponse& response)
 	// std::string::iterator				url_it = response.request.url.end();
 	
 	(void) status_code;
-	if (content_dir(response.path_file, response) == "found")
+	if (content_dir(response.path_file, response, content) == "found")
 	{
 		if (!response.location_it->index.empty())
 		{
