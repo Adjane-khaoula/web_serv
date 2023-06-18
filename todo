@@ -32,3 +32,11 @@ if file binary not work with content string
 
 ////////////////////////////////////////////////////////////////////
 if file name exist in upload generate other file name
+same ip and same but server name difference
+
+check in all content dir deleted => 204
+else 
+	hase access folder => 500
+	no => 403
+
+

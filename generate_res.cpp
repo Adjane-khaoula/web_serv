@@ -64,14 +64,17 @@ std::string	get_reason_phase(int status_code)
 
 	reason_phase[200] = "ok";
 	reason_phase[201] = "created";
+	reason_phase[204] = "No Content";
 	reason_phase[301] = "Moved Permanently"; 
 	reason_phase[302] = "Found"; 
 	reason_phase[400] = "Bad Request";
 	reason_phase[403] = "Forbidden";
 	reason_phase[404] = "Not Found";
 	reason_phase[405] = "Method Not Allowed";
+	reason_phase[409] = "Conflict";
 	reason_phase[413] = "Request Entity Too Large";
 	reason_phase[414] = "Request-URI Too Long";
+	reason_phase[500] = "Internal Server Error";
 	reason_phase[501] = "not implemented";
 
 	return(reason_phase[status_code]);

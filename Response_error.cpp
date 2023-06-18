@@ -84,6 +84,10 @@ void response_Http_Request_error(int status_code, Config& config, HttpResponse& 
 			response.content = res_content(status_code, config, response);
 			if (response.content == "not found")
 				response.content = read_File_error("www/403.html");
+		case 204:
+			response.content = res_content(status_code, config, response);
+			if (response.content == "not found")
+				response.content = read_File_error("www/204.html");
 	}
 	response.headers["Content-Length"] = ft_tostring(response.content.length());
 }

@@ -103,34 +103,3 @@ int	response_redirect(HttpResponse& response, Config& config)
 	};
 	return (0);
 }
-
-// void deleteDirectoryContents(std::string& dirPath) {
-//     DIR* dir = opendir(dirPath);
-//     if (dir == NULL) {
-//         std::cerr << "Failed to open directory: " << dirPath << std::endl;
-//         return;
-//     }
-
-//     struct dirent* entry;
-//     while ((entry = readdir(dir)) != NULL) {
-//         if (strcmp(entry->d_name, ".") == 0 || strcmp(entry->d_name, "..") == 0)
-//             continue;
-
-//         std::string filePath = std::string(dirPath) + "/" + entry->d_name;
-//         struct stat fileStat;
-//         if (lstat(filePath.c_str(), &fileStat) == -1) {
-//             std::cerr << "Failed to get file stat for: " << filePath << std::endl;
-//             continue;
-//         }
-
-//         if (S_ISDIR(fileStat.st_mode)) {
-//             deleteDirectoryContents(filePath.c_str());
-//             rmdir(filePath.c_str());
-//         } else {
-//             unlink(filePath.c_str());
-//         }
-//     }
-
-//     closedir(dir);
-// }
-

@@ -150,7 +150,7 @@ int main(int argc, char **argv) {
 						// response.headers["content-length"] = content_length;
 						response.headers["Transfer-Encoding"] = "chunked";
 						response_buffer = generate_http_response(response);
-						std::cout << "+++++++++++> " << response_buffer << std::endl;
+						// std::cout << "+++++++++++> " << response_buffer << std::endl;
 						send(response.fd, response_buffer.c_str(), response_buffer.length(), 0);
 						response.content = read_File(response);
 						if (response.finish_reading)
@@ -174,13 +174,16 @@ int main(int argc, char **argv) {
 				if(!response_post(config, response))
 					goto close_socket;
 			}
+			else if (status_code == 3)
+			{
+				if(!response_delete(req, config, response))
+					goto close_socket;
+			}
 			else
 			{
 				ft_send_error(status_code, config, response);
 				goto close_socket;
 			}
-			// else if (status_code == 3)
-			// 	response_delete(req, config, response);
 			clients[fd] = response;
 		}
 		else
