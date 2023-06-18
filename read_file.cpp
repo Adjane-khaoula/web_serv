@@ -102,3 +102,9 @@ std::string read_File(HttpResponse& response)
 	}
 	return ("404");
 }
+
+
+// int	post_dir(int status_code , Config& config, HttpResponse& response)
+// {
+	
+// }

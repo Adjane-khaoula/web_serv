@@ -38,7 +38,6 @@ std::string get_content_type(std::string path)
 	content_type["json"] = "application/json";
 	content_type["xml"] = "application/xml";
 	content_type["pdf"] = "application/pdf";
-	content_type["xml"] = "application/xml";
 	content_type["jpeg"] = "image/jpeg";
 	content_type["jpg"] = "image/jpeg";
 	content_type["gif"] = "image/gif";
@@ -68,7 +67,7 @@ std::string	get_reason_phase(int status_code)
 	reason_phase[301] = "Moved Permanently"; 
 	reason_phase[302] = "Found"; 
 	reason_phase[400] = "Bad Request";
-	reason_phase[403] = "403 Forbidden";
+	reason_phase[403] = "Forbidden";
 	reason_phase[404] = "Not Found";
 	reason_phase[405] = "Method Not Allowed";
 	reason_phase[413] = "Request Entity Too Large";

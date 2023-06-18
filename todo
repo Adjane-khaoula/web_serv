@@ -28,6 +28,7 @@ todo:
 if method = Get => ignore the body
 handel transfer encoding = chunked
 add client_max_body_size 10M
-
 if file binary not work with content string
-add extention a n3ja
+
+////////////////////////////////////////////////////////////////////
+if file name exist in upload generate other file name

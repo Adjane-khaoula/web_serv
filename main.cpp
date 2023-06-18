@@ -147,9 +147,10 @@ int main(int argc, char **argv) {
 					}
 					else
 					{
-						response.headers["content-length"] = content_length;
+						// response.headers["content-length"] = content_length;
 						response.headers["Transfer-Encoding"] = "chunked";
 						response_buffer = generate_http_response(response);
+						std::cout << "+++++++++++> " << response_buffer << std::endl;
 						send(response.fd, response_buffer.c_str(), response_buffer.length(), 0);
 						response.content = read_File(response);
 						if (response.finish_reading)

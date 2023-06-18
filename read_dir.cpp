@@ -15,22 +15,29 @@ std::string content_dir(std::string dir,HttpResponse& response, std::vector<std:
 		std::ofstream file("content_dir.html");
 		if (file)
 		{
-			file << "<!DOCTYPE html>\n" << "<html>\n" << "<head>\n" << "<title>autoindex</title>\n";
-			file << "</head>\n" << "<body>\n";
-			file << "<h1>" << "Index of " << response.request.url <<"</h1>\n" << "<ul>\n";
+			if (response.request.method == "GET")
+			{
+				file << "<!DOCTYPE html>\n" << "<html>\n" << "<head>\n" << "<title>autoindex</title>\n";
+				file << "</head>\n" << "<body>\n";
+				file << "<h1>" << "Index of " << response.request.url <<"</h1>\n" << "<ul>\n";
+			}
 			while ((content_dir = readdir(directory)))
 			{
 				if (strcmp(content_dir->d_name, ".") && strcmp(content_dir->d_name , "..")
 						&& strcmp(content_dir->d_name, ".DS_Store"))
 				{
-					if (*response.request.url.rbegin() != '/')
-						file << "<li><a href=\"" << "http://"<< response.server_it->ip << ":" << response.server_it->port << response.request.url << '/' << content_dir->d_name << "\">" << content_dir->d_name << "</a></li>\n";
-					else
-						file << "<li><a href=\"" << "http://"<< response.server_it->ip << ":" << response.server_it->port << response.request.url << content_dir->d_name << "\">" << content_dir->d_name << "</a></li>\n";
+					if (response.request.method == "GET")
+					{
+						if (*response.request.url.rbegin() != '/')
+							file << "<li><a href=\"" << "http://"<< response.server_it->ip << ":" << response.server_it->port << response.request.url << '/' << content_dir->d_name << "\">" << content_dir->d_name << "</a></li>\n";
+						else
+							file << "<li><a href=\"" << "http://"<< response.server_it->ip << ":" << response.server_it->port << response.request.url << content_dir->d_name << "\">" << content_dir->d_name << "</a></li>\n";
+					}
 					content.push_back(content_dir->d_name);
 				}
 			}
-			file << "</ul>\n" << "</body>\n" << "</html>\n";
+			if (response.request.method == "GET")
+				file << "</ul>\n" << "</body>\n" << "</html>\n";
 		}
 		file.close();
 		closedir(directory);
@@ -53,6 +60,7 @@ int	res_content_dir(int status_code, Config& config, HttpResponse& response)
 			content_it = std::find(content.begin(), content.end(), response.location_it->index);
 			if (content_it != content.end())
 			{
+				// std::cout << "path = " << response.path_file << std::endl;
 				if (*response.path_file.rbegin() != '/')
 					response.path_file += "/" + response.location_it->index;
 				else
@@ -68,7 +76,7 @@ int	res_content_dir(int status_code, Config& config, HttpResponse& response)
 		content_it = std::find(content.begin(), content.end(), "index.html");
 		if (content_it != content.end())
 		{
-			std::cout << "response.path_file 1= " << response.path_file << std::endl;
+			// std::cout << "response.path_file 1= " << response.path_file << std::endl;
 			if (*response.path_file.rbegin() != '/')
 				response.path_file += "/index.html";
 			else
@@ -80,7 +88,7 @@ int	res_content_dir(int status_code, Config& config, HttpResponse& response)
 			response.headers["Content-Type"] = get_content_type(response.path_file);
 			return(1) ;
 		}
-		if (response.location_it->autoindex)
+		if (response.location_it->autoindex && response.request.method == "GET")
 		{
 			response.path_file = "content_dir.html";
 			fill_response(200, response);
