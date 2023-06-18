@@ -124,23 +124,21 @@ int main(int argc, char **argv) {
 		// 	send(fd, response_buffer.c_str(), response_buffer.length(), 0) ;
 		// }
 		////////////////////////////////////////////////////////////////////////////////////////
-		// std::cout << "\033[32m"  << "method: " << request.method<< "\033[0m" << std::endl;
-		// std::cout << "\033[32m"  << "url: " << request.url<< "\033[0m" << std::endl;
-		// std::cout << "\033[32m"  << "version: " << request.version << "\033[0m" << std::endl;
-		// for (auto it = request.headers.begin(); it != request.headers.end(); it++) {
-		// 	std::cout << "\033[32m" << it->first << ' ' << it->second << "\033[0m" << std::endl;
-		// }
+		std::cout << "\033[32m"  << "method: " << request.method<< "\033[0m" << std::endl;
+		std::cout << "\033[32m"  << "url: " << request.url<< "\033[0m" << std::endl;
+		std::cout << "\033[32m"  << "version: " << request.version << "\033[0m" << std::endl;
+		for (auto it = request.headers.begin(); it != request.headers.end(); it++) {
+			std::cout << "\033[32m" << it->first << ' ' << it->second << "\033[0m" << std::endl;
+		}
 		///////////////////////////////////////////////////////////////////////////////////////////
 		if (clients.empty() || clients_it == clients.end())
 		{
-			// std::cout << "@@@@@@@@@@@@@@@@@@" << std::endl;
 			init_response(config, response, request, fd);
 
 			if (status_code == 1)
 			{
 				if (response_get(config, response))
 				{
-					// std::cout << "path == " << response.path_file << std::endl;
 					content_length = read_File(response);
 					if (content_length == "404")
 					{
@@ -152,20 +150,27 @@ int main(int argc, char **argv) {
 						response.headers["content-length"] = content_length;
 						response.headers["Transfer-Encoding"] = "chunked";
 						response_buffer = generate_http_response(response);
-						// std::cout << "******> {" << response_buffer << "}"<< std::endl;
 						send(response.fd, response_buffer.c_str(), response_buffer.length(), 0);
-						// std::cout << "++++++++++++>" << response.path_file << std::endl;
 						response.content = read_File(response);
 						if (response.finish_reading)
 						{
-							std::cout << "******> { "<< std::endl;
 							send(response.fd, response.content.c_str(), response.content.length(), 0);
-							std::cout << "----------> { "<< std::endl;
 							goto close_socket;
 						}
 					}
 				}
 				else
+					goto close_socket;
+				// else
+				// {
+				// 	ft_send_error(status_code, config, response);
+				// 	goto close_socket;
+				// }
+			}
+			else if (status_code == 2)
+			{
+				// std::cout << "---> {" << response.request.content << std::endl;
+				if(!response_post(config, response))
 					goto close_socket;
 			}
 			else
@@ -173,8 +178,6 @@ int main(int argc, char **argv) {
 				ft_send_error(status_code, config, response);
 				goto close_socket;
 			}
-			// else if (status_code == 2)
-			// 	response_post(req, config, response);
 			// else if (status_code == 3)
 			// 	response_delete(req, config, response);
 			clients[fd] = response;
@@ -192,6 +195,3 @@ close_socket:
 			close(fd);
 	}
 }
-
-
-

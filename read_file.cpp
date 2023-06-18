@@ -8,11 +8,7 @@ int get_path(Config config, HttpResponse& response)
 	std::string dir = response.location_it->dir;
 	std::string url = response.request.url;
 	std::string root = response.server_it->root;
-	std::cout << "*********************** dir = " << response.location_it->dir << std::endl;
-	std::cout << "*********************** target = " << response.location_it->target << std::endl;
-	std::cout << "*********************** url = " << response.request.url << std::endl;
-	std::cout << "*********************** " << response.request.url.substr(response.location_it->target.length() - 1, response.request.url.length()) << std::endl;
-
+	
 	size_t	find = url.find(target);
 	if (!dir.empty())
 	{
@@ -26,15 +22,12 @@ int get_path(Config config, HttpResponse& response)
 	}
 	ft_send_error(404, config, response);
 	return (0);
-	// std::cout << "**********response.path_file = " << response.path_file << std::endl;
 }
 
 std::string type_repo(std::string path)
 {
 	struct stat info;
 
-	std::cout << "response.path_file = " << path << std::endl;
-	// std::cout << "*(path.end() - 1) = " << *(path.end() - 1) << std::endl;
 	if (*(path.end() - 1) == '/')
 		return ("is_directory");
 	if (!stat(path.c_str(), &info))
@@ -65,7 +58,6 @@ std::string read_File(HttpResponse& response)
 	std::string res = "";
 	std::stringstream hex;
 	file.open(response.path_file, std::ifstream::binary);
-
 	if (file.is_open())
 	{
 		file.seekg (0, file.end);
@@ -96,7 +88,6 @@ std::string read_File(HttpResponse& response)
 				hex.str("");
 				chunkSize = 0;
 				hex << std::hex << chunkSize;
-				// std::cout << "******> {" << res << "}"<< std::endl;
 				response.finish_reading = true;
 				res += hex.str() + "\r\n" + "\r\n";
 				file.close();

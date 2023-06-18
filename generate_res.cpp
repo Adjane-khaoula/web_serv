@@ -63,6 +63,8 @@ std::string	get_reason_phase(int status_code)
 {
 	std::map<int, std::string> reason_phase;
 
+	reason_phase[200] = "ok";
+	reason_phase[201] = "created";
 	reason_phase[301] = "Moved Permanently"; 
 	reason_phase[302] = "Found"; 
 	reason_phase[400] = "Bad Request";
@@ -72,7 +74,6 @@ std::string	get_reason_phase(int status_code)
 	reason_phase[413] = "Request Entity Too Large";
 	reason_phase[414] = "Request-URI Too Long";
 	reason_phase[501] = "not implemented";
-	reason_phase[200] = "ok";
 
 	return(reason_phase[status_code]);
 }

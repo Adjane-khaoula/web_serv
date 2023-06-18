@@ -117,6 +117,8 @@ std::string		get_reason_phase(int status_code);
 std::string		ft_tostring(int nbr);
 int				response_redirect(HttpResponse& response, Config& config);
 int response_Http_Request(int status_code , Config& config, HttpResponse& response);
+std::string	generate_filename();
+int response_post(Config& config, HttpResponse& response);
 // int			check_req_well_formed(int fd,Config& config, std::map<int,HttpResponse>& responses);
 // std::string	read_File(std::map<int,HttpResponse>& responses, int fd );
 // void			response_get(int fd, Config& config, std::map<int,HttpResponse>& responses);
