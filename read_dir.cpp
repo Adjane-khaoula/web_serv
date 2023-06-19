@@ -60,7 +60,6 @@ int	res_content_dir(int status_code, Config& config, HttpResponse& response)
 			content_it = std::find(content.begin(), content.end(), response.location_it->index);
 			if (content_it != content.end())
 			{
-				// std::cout << "path = " << response.path_file << std::endl;
 				if (*response.path_file.rbegin() != '/')
 					response.path_file += "/" + response.location_it->index;
 				else
@@ -76,7 +75,6 @@ int	res_content_dir(int status_code, Config& config, HttpResponse& response)
 		content_it = std::find(content.begin(), content.end(), "index.html");
 		if (content_it != content.end())
 		{
-			// std::cout << "response.path_file 1= " << response.path_file << std::endl;
 			if (*response.path_file.rbegin() != '/')
 				response.path_file += "/index.html";
 			else
