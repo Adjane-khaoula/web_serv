@@ -24,7 +24,7 @@ std::string		res_content(int status_code, Config& config, HttpResponse& response
 
 int response_Http_Request(int status_code , Config& config, HttpResponse& response)
 {
-	std::cout << "code == " << status_code << std::endl;
+	// std::cout << "code == " << status_code << std::endl;
 	if (response.request.url == response.old_url)
 		fill_response(status_code, response);
 	else
@@ -49,6 +49,7 @@ int	response_get(Config& config, HttpResponse& response)
 		return (response_redirect(response, config));
 	if (get_path(config, response))
 	{
+		std::cout << "path == " << response.path_file << std::endl;
 		type_rep = type_repo(response.path_file);
 		std::cout << "type_rep = " << type_rep << std::endl;
 		if (type_rep == "is_file")
@@ -61,7 +62,16 @@ int	response_get(Config& config, HttpResponse& response)
 		}
 		else if (type_rep == "is_directory")
 		{
-			if (response_Http_Request(301,config, response))
+			if (*response.path_file.rbegin() != '/')
+			{
+				fill_response(301, response);
+				response.headers["Location"] = response.request.url + "/";
+				std::string response_buffer = generate_http_response(response);
+				response_buffer += response.content;
+				send(response.fd, response_buffer.c_str(), response_buffer.size(), 0);
+				return (0);
+			}
+			else if (response_Http_Request(301,config, response))
 				return (1);
 		}
 		else

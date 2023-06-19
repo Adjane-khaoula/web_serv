@@ -60,14 +60,9 @@ int	res_content_dir(int status_code, Config& config, HttpResponse& response)
 			content_it = std::find(content.begin(), content.end(), response.location_it->index);
 			if (content_it != content.end())
 			{
-				if (*response.path_file.rbegin() != '/')
-					response.path_file += "/" + response.location_it->index;
-				else
-				{
-					response.code = 200;
-					response.reason_phrase = "ok";
-					response.path_file += response.location_it->index;
-				}
+				response.code = 200;
+				response.reason_phrase = "ok";
+				response.path_file += response.location_it->index;
 				response.headers["Content-Type"] = get_content_type(response.path_file);
 				return(1) ;
 			}
@@ -75,14 +70,9 @@ int	res_content_dir(int status_code, Config& config, HttpResponse& response)
 		content_it = std::find(content.begin(), content.end(), "index.html");
 		if (content_it != content.end())
 		{
-			if (*response.path_file.rbegin() != '/')
-				response.path_file += "/index.html";
-			else
-			{
-				response.code = 200;
-				response.reason_phrase = "ok";
-				response.path_file += "index.html";
-			}
+			response.code = 200;
+			response.reason_phrase = "ok";
+			response.path_file += "index.html";
 			response.headers["Content-Type"] = get_content_type(response.path_file);
 			return(1) ;
 		}
