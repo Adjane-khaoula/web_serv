@@ -40,7 +40,11 @@ void	del_content_dir(Config config, HttpResponse& response, std::string& path_di
 		}
 	}
 	else
+	{
 		ft_send_error(403,config, response);
+		return ;
+
+	}
 	closedir(directory);
 	remove(path_dir.c_str());
 	ft_send_error(204, config, response);
