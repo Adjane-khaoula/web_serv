@@ -40,3 +40,6 @@ same ip and same but server name difference
 
 in 301 do redirection
 
+handel ..
+ => why head hang
+ => return: 302 main hardkodi hadi l /main wila http khliha 

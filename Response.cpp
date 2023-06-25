@@ -1,10 +1,10 @@
 #include "webserv.hpp"
 #include "config.hpp"
-#include <iostream>
-#include <fstream>
-#include <sstream>
-#include <dirent.h>
-#include <cstdio>
+// #include <iostream>
+// #include <fstream>
+// #include <sstream>
+// #include <dirent.h>
+// #include <cstdio>
 
 
 std::string		res_content(int status_code, Config& config, HttpResponse& response)
@@ -58,6 +58,12 @@ int	response_get(Config& config, HttpResponse& response)
 			{
 				response_Http_Request(200, config, response);
 				return (1);
+			}
+			else
+			{
+				// std::cout << "!!!!!!!!!!!!!!!!!!!\n";
+				fill_response(200, response);
+				execute_cgi(response);
 			}
 		}
 		else if (type_rep == "is_directory")

@@ -23,8 +23,7 @@ std::string content_dir(std::string dir,HttpResponse& response, std::vector<std:
 			}
 			while ((content_dir = readdir(directory)))
 			{
-				if (strcmp(content_dir->d_name, ".") && strcmp(content_dir->d_name , "..")
-						&& strcmp(content_dir->d_name, ".DS_Store"))
+				if (strcmp(content_dir->d_name, ".DS_Store"))
 				{
 					if (response.request.method == "GET")
 					{

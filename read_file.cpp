@@ -13,6 +13,7 @@ int get_path(Config config, HttpResponse& response)
 	if (!dir.empty())
 	{
 		response.path_file = url.substr(0, find) + dir + url.substr(find + target.length(), url.length());
+		// std::cout << "************ " << response.path_file << std::endl;
 		return (1);
 	}
 	if (!response.server_it->root.empty())

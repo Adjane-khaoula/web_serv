@@ -20,6 +20,8 @@
 #include <cassert>
 #include <fstream>
 #include <sstream>
+#include <sys/wait.h>
+#include <cstdio>
 
 #define BACKLOG_SIZE 32
 #define HTTP_DEL "\r\n"
@@ -116,6 +118,7 @@ void	add_extention(std::string& filename,HttpResponse& response);
 void	upload_exist(Config& config, HttpResponse& response, std::string& upload_path);
 void	upload_not_exist(Config& config, HttpResponse& response);
 int response_delete(Config& config, HttpResponse& response);
+void    execute_cgi(HttpResponse &response);
 // int			check_req_well_formed(int fd,Config& config, std::map<int,HttpResponse>& responses);
 // std::string	read_File(std::map<int,HttpResponse>& responses, int fd );
 // void			response_get(int fd, Config& config, std::map<int,HttpResponse>& responses);

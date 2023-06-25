@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Formulaire</title>
+	</head>
+	<body bgcolor="#9DC2B7">
+        <p>
+		<form>
+			<fieldset>
+                <legend><b  style="color:#3C4945" ><u><h2>A propos de client</h2></u></b></legend>
+			<p>
+			<table>
+				<tr>
+                    <td>Nom :</td>
+					<td> <input type="text" name="nom" placeholder="votre nom" id="nom" required><br></td>
+                </tr>
+                <tr>
+                    <td>Prénom :</td>
+					<td> <input type="text" name="prenom" placeholder="votre prénom" id="prenom" required><br></td>
+                </tr>
+                <tr>
+                    <td>CNE :</td>
+					<td> <input type="text" name="CNE" placeholder="votre CNE" id="CNE" required><br></td>
+                </tr>
+                <tr>
+                    <td>Adress :</td>
+					<td> <input type="text" name="adress" placeholder="votre adress" id="adress" required><br></td>
+                </tr>
+            </table>
+            </fieldset>
+            <fieldset>
+                <legend><b style="color:#3C4945"><u><h2>A propos de passient</h2></u></b></legend>
+			<p>
+			<table>
+				<tr>
+                    <td>Nom :</td>
+					<td> <input type="text" name="nomp" placeholder="Le nom de passient" id="nomp" required><br></td>
+                </tr>
+                <tr>
+                    <td>Prénom :</td>
+					<td> <input type="text" name="prenomp" placeholder="Le prénom de passient" id="prenomp" required><br></td>
+                </tr>
+                <tr>
+                    <td>L'age :</td>
+					<td><input type="radio" name="radio1" value="radio1" id="age1">
+                   <label>Nourisson (0-6 mois) </label></td>
+                    <td>Poid :
+					<input type="text" name="text" placeholder="Le poid" id="poid"><br></td>
+				</tr>
+                <tr>
+                    <td></td>
+					<td><input type="radio" name="radio1" value="radio1" id="age2">
+                    <label>Enfant (6 mois-12 ans) </label></td>
+				</tr>
+                <tr> 
+                    <td></td>
+                    <td><input type="radio" name="radio1" value="radio1" id="age3">
+                        <label>Adulte (plus de 12 ans) </label></td>
+                    <td>sex:
+					<select name="select" size="1" onfocus="this.style.color='#3C4945'"onchange="" onblur="this.style.color=#9DC2B7">
+                         <option value="null">sex:
+                        <optgroup label="Femme">
+							<option style="color:#9DC2B7">Enceinte</option>
+							<option style="color:#9DC2B7">Nourrice</option>
+							<option style="color:#9DC2B7">Normale</option>
+						</optgroup>
+						<optgroup label="Homme">
+                            <option style="color:#9DC2B7">Homme</option>
+                        </optgroup>
+                        </select>
+                    </td>
+				</tr>
+                <tr>
+				    <td>Le passient a-il une allergie?
+			         <td><textarea name="textarea" rows="5" palceholder="contenue.." cols="26"onclick="this.value=''">Si oui, laquelle?</textarea><br></td>
+					</tr>
+            </table>
+            </fieldset>
+
+			<fieldset>
+                <legend><b style="color:#3C4945"><u><h2>Demmander votre médicament</h2></u></b></legend>
+					<p>
+					<table>
+						<tr>
+							<td><label>Importez votre ordonance médicale :</label></td>
+							<td> <input type="file" name="fichier" accept="image/*" ><br></td>
+						</tr>
+                        <tr>
+							<td>Nom du médicament souhaité:</td>
+					<td> <input type="text" name="text" ><br></td>
+						</tr>
+                    </table>
+			</fieldset>
+            <tr>
+				<td><input type="submit" name="envoi" value="Envoyer"></td>
+                <td><input type="reset" value="Effacer toutes les données" ></td>
+            </tr>
+		</form>
+        <div>
+    <script src="script.js"></script>
+ </div> 
+    </body>
+</html>

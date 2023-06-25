@@ -27,7 +27,7 @@ void init_response(Config& config, HttpResponse& response, HttpRequest& request,
 std::string get_content_type(std::string path)
 {
 	std::map<std::string, std::string> content_type;
-	std::string type = path.substr(path.rfind(".") + 1,path.length());
+	std::string type = path.substr(path.find_last_of(".") + 1,path.length());////rfind
 
 	content_type["html"] = "text/html";
 	content_type["htm"] = "text/html";
