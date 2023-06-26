@@ -140,6 +140,7 @@ int main(int argc, char **argv) {
 			{
 				if (response_get(config, response))
 				{
+					std::cout << "content_length = " << content_length << std::endl;
 					content_length = read_File(response);
 					if (content_length == "404")
 					{
@@ -148,12 +149,13 @@ int main(int argc, char **argv) {
 					}
 					else
 					{
-						// response.headers["content-length"] = content_length;
+						response.headers["content-length"] = content_length;
 						response.headers["Transfer-Encoding"] = "chunked";
 						response_buffer = generate_http_response(response);
-						// std::cout << "+++++++++++> " << response_buffer << std::endl;
+						std::cout << "+++++++++++> " << response_buffer << std::endl;
 						send(response.fd, response_buffer.c_str(), response_buffer.length(), 0);
 						response.content = read_File(response);
+						std::cout << "+++++++++++> " << response.content << std::endl;
 						if (response.finish_reading)
 						{
 							send(response.fd, response.content.c_str(), response.content.length(), 0);

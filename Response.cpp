@@ -59,12 +59,12 @@ int	response_get(Config& config, HttpResponse& response)
 				response_Http_Request(200, config, response);
 				return (1);
 			}
-			else
-			{
-				// std::cout << "!!!!!!!!!!!!!!!!!!!\n";
-				fill_response(200, response);
-				execute_cgi(response);
-			}
+			// else
+			// {
+			// 	// std::cout << "!!!!!!!!!!!!!!!!!!!\n";
+			// 	fill_response(200, response);
+			// 	execute_cgi(response);
+			// }
 		}
 		else if (type_rep == "is_directory")
 		{

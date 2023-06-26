@@ -86,6 +86,7 @@ std::string read_File(HttpResponse& response)
 			res += content + "\r\n";
 			if (file.gcount() == length)
 			{
+				std::cout << "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~```" << std::endl;
 				hex.str("");
 				chunkSize = 0;
 				hex << std::hex << chunkSize;
