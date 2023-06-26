@@ -1,14 +1,14 @@
-nginx HTTP 1.1
-status code
-default error pages
++ nginx HTTP 1.1
++ status code
++ default error pages
 fork only allowed for cgi
 static website
 upload file support
-methods: GET POST DELETE
++ methods: GET POST DELETE
 ddos immune
-multiple port support
-config:
-port host
++ multiple port support
++ config:
++ port host
 server_names (domain)
 the first server is the default if none other matches
 setup default error pages
@@ -24,22 +24,10 @@ todo:
 	simple static server
 
 ////////////////////////////////////////////////////////////////////
-
-if method = Get => ignore the body
-handel transfer encoding = chunked
-add client_max_body_size 10M
-if file binary not work with content string
-if i have two same host => "Assertion failed: (bind(sock, (struct sockaddr *)&address, sizeof(address)) == 0), function spawn_servers, file main.cpp, line 34."
-"[1]    10020 abort      ./webserv webserv.conf "
-=> "root: " without path -> hang
-=> check if path in dir and root and error_page in config file exist if else return error and exist
-=> check if the methods has a correct name else return error and exist
-=> check if the target in location exist or no 
-////////////////////////////////////////////////////////////////////
-same ip and same but server name difference
-
-in 301 do redirection
-
-handel ..
- => why head hang
- => return: 302 main hardkodi hadi l /main wila http khliha 
+form data: upload files
+cgi
+in / => if not found / in the end added
+open not work 500
+autoindex ..
+check if status_code in config = 301 or 302 else error
+infinit redirection in => /Users/kadjane/Desktop/web_serv2/srcs/book.pdf

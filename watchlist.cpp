@@ -6,6 +6,7 @@
 
 #include <stdlib.h>
 #include <iostream>
+#include <fcntl.h>
 #include "webserv.hpp"
 
 int init_watchlist() {
@@ -47,14 +48,24 @@ void watchlist_del_fd(int wfd, int fd) {
 #endif
 }
 
+/**
+ * ret == 0 is reserved to mean no requests are currently waiting
+*/
 int watchlist_wait_fd(int wfd) {
 #ifdef __APPLE__
 	struct kevent event;
-	assert(kevent(wfd, NULL, 0, &event, 1, NULL) == 1);
+	struct timespec ts = {.tv_nsec = 1000 };
+	int ret = kevent(wfd, NULL, 0, &event, 1, &ts);
+	if (ret == 0)
+		return WATCHL_NO_PENDING;
+	assert(ret == 1);
 	return (int)(long)event.udata;
 #elif __linux__
     struct epoll_event event;
-	assert(epoll_wait(wfd, &event, 1, -1) == 1);
+	int ret = epoll_wait(wfd, &event, 1, 1);
+	if (ret == 0)
+		return WATCHL_NO_PENDING;
+	assert(ret == 1);
 	return event.data.fd;
 #endif
 }

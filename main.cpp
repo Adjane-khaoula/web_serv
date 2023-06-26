@@ -4,64 +4,12 @@
 #include <sys/epoll.h>
 #endif
 #include "webserv.hpp"
+#include <cstring>
+#include "sched.hpp"
 
-void die(std::string msg) {
-	perror(msg.c_str());
-	exit(1);
-}
-
+// todo: check if globals are allowed
 Config config;
-int max_server_fd;
-/**
- * spawn servers and add their sockets to watchlist
- * wait for events (connections, requests) and handle them serially
- * 
-*/
 
-void spawn_servers(int wfd) {
-	for (size_t i = 0; i < config.servers.size(); i++) {
-		int sock;
-		assert((sock = socket(PF_INET, SOCK_STREAM, 0)) != -1);
-
-		int enable = 1;
-		assert(setsockopt(sock, SOL_SOCKET, SO_REUSEADDR, &enable, sizeof(enable)) == 0);
-
-		struct sockaddr_in address;
-		address.sin_family = AF_INET;
-		address.sin_addr.s_addr = inet_addr(config.servers[i].ip.c_str());
-		address.sin_port = htons(config.servers[i].port);
-
-		assert(bind(sock, (struct sockaddr *)&address, sizeof(address)) == 0);
-
-		assert(listen(sock, BACKLOG_SIZE) == 0);
-		std::cout << "--------- " << "listening on: " << config.servers[i].ip << ":" << config.servers[i].port << std::endl;
-
-#ifdef __APPLE__
-		watchlist_add_fd(wfd, sock, EVFILT_READ);
-#elif __linux__
-		watchlist_add_fd(wfd, sock, EPOLLIN);
-#endif
-		max_server_fd = sock;
-	}
-}
-
-void accept_connection(int wfd, int server) {
-	struct sockaddr_in caddress;
-	socklen_t len = sizeof caddress;
-	int client;
-	assert((client = accept(server, (struct sockaddr *)&caddress, &len)) != -1);
-	
-#ifdef __APPLE__
-		watchlist_add_fd(wfd, client, EVFILT_READ);
-#elif __linux__
-		watchlist_add_fd(wfd, client, EPOLLIN);
-#endif
-
-	std::cout << "--------- " << "connection received " << inet_ntoa(caddress.sin_addr) << ":" << ntohs(caddress.sin_port) << std::endl;
-}
-
-
-////////////////////////////////////////////////////////////////////////////////////
 int main(int argc, char **argv) {
 	if (argc != 2)
 		die("usage: webserv <config_file>\n");
@@ -72,132 +20,84 @@ int main(int argc, char **argv) {
     int wfd = init_watchlist();
 	spawn_servers(wfd);
 
-	int ret;
+	int									finished = 0;
+	std::map<int, SchedulableEntity *>	tasks;
+	bool 								close_connexion = false;
 
-	std::map<int,HttpResponse>	clients;
 	while (1) {
+		int							status_code = 0;
+		HttpRequest					request;
+		HttpResponse				response;
+		HttpRequest					*copy_request;
+
 		int fd = watchlist_wait_fd(wfd);
 
-		if (fd <= max_server_fd) {
+		if (fd > 2 && fd <= config.max_server_fd) {
 			accept_connection(wfd, fd);
 			continue;
 		}
-
-		std::string	request_buffer;
-		HttpRequest	request;
-
-		int							status_code;
-		HttpResponse				response;
-		std::string					response_buffer;
-		std::string					content_length;
-		std::map<int, HttpResponse>::iterator clients_it = clients.find(fd);
-
-		while (1) {
-			char buffer[255];
-			// std::cout << "################ " << std::endl;
-			if ((ret = recv(fd, buffer, sizeof buffer, 0)) < 0)
-				goto close_socket;
-			buffer[ret] = 0;
-			request_buffer += buffer;
-			if (ret != sizeof buffer)
-				break;
+		// no new request, serve pending ones
+		if (fd == WATCHL_NO_PENDING || tasks.find(fd) != tasks.end()) {
+			fd = sched_get_starved(tasks);
+			if (fd == Q_EMPTY)
+				continue;
+			std::cout << "schedule pending requests" << std::endl;
+			if (tasks[fd]->get_type() == REQUEST) {
+				copy_request = dynamic_cast<HttpRequest *>(tasks[fd]);
+				request = *copy_request; 
+				goto request;
+			} else if (tasks[fd]->get_type() == RESPONSE) {
+				response = *dynamic_cast<HttpResponse *>(tasks[fd]);
+				goto response;
+			}
 		}
-
-		if (request_buffer.length() == 0)
+request:
+		status_code = get_request(fd, request);
+		std::cout << "status_code = " << status_code << std::endl;
+		switch (status_code)
+		{
+		case REQ_CONN_BROKEN:
 			goto close_socket;
-		else
-			std::cout << "--------- request received"<< std::endl;
-
-		if (parse_http_request(request_buffer, request) < 0)
-			status_code = 400;
-		else
-		{
-			response.old_url = request.url;
-			status_code = check_req_line_headers(config, request);
+			break;
+		case REQ_TO_BE_CONT:
+			copy_request = new HttpRequest(request);
+			sched_queue_task(tasks, fd, copy_request);
+			continue;
+		default:
+			sched_unqueue_task(tasks, fd);
+			break;
 		}
-		// std::cout << "status_code " << status_code << std::endl;
-		// status_code = parse_http_request(config, request_buffer, request);
-		// if (status_code != 1 || status_code != 2 || status_code != 3)
-		// {
-		// 	response_Http_Request_error(status_code, config, response);
-		// 	response_buffer = generate_http_response(response);
-		// 	response_buffer += response.content;
-		// 	send(fd, response_buffer.c_str(), response_buffer.length(), 0) ;
+response:
+		// dump_request(request);
+		// goto close_socket;
+		// std::cout << "\033[32m"  << "method: " << request.method<< "\033[0m" << std::endl;
+		// std::cout << "\033[32m"  << "url: " << request.url<< "\033[0m" << std::endl;
+		// std::cout << "\033[32m"  << "version: " << request.version << "\033[0m" << std::endl;
+		// for (auto it = request.headers.begin(); it != request.headers.end(); it++) {
+		// 	std::cout << "\033[32m" << it->first << ' ' << it->second << "\033[0m" << std::endl;
 		// }
-		////////////////////////////////////////////////////////////////////////////////////////
-		std::cout << "\033[32m"  << "method: " << request.method<< "\033[0m" << std::endl;
-		std::cout << "\033[32m"  << "url: " << request.url<< "\033[0m" << std::endl;
-		std::cout << "\033[32m"  << "version: " << request.version << "\033[0m" << std::endl;
-		for (auto it = request.headers.begin(); it != request.headers.end(); it++) {
-			std::cout << "\033[32m" << it->first << ' ' << it->second << "\033[0m" << std::endl;
+		finished = send_response(fd, request, response, status_code, &close_connexion);
+		
+		// std::cout << "*********************>finished = "<< finished << std::endl;
+///////////////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////////
+		// finished = send_response(fd, request, response, status_code);
+		// finished = send_response(fd, request, response, status_code, &close);
+		// std::cout << close_connexion << "= " << std::endl;
+		if (finished || close_connexion) {
+			sched_unqueue_task(tasks, fd);
+			goto close_socket;
+		} else {
+			sched_queue_task(tasks, fd, new HttpResponse(response));
 		}
-		///////////////////////////////////////////////////////////////////////////////////////////
-		if (clients.empty() || clients_it == clients.end())
-		{
-			
-			init_response(config, response, request, fd);
-			if (status_code == 1)
-			{
-				if (response_get(config, response))
-				{
-					std::cout << "content_length = " << content_length << std::endl;
-					content_length = read_File(response);
-					if (content_length == "404")
-					{
-						ft_send_error(404, config, response);
-						goto close_socket;
-					}
-					else
-					{
-						response.headers["content-length"] = content_length;
-						response.headers["Transfer-Encoding"] = "chunked";
-						response_buffer = generate_http_response(response);
-						std::cout << "+++++++++++> " << response_buffer << std::endl;
-						send(response.fd, response_buffer.c_str(), response_buffer.length(), 0);
-						response.content = read_File(response);
-						std::cout << "+++++++++++> " << response.content << std::endl;
-						if (response.finish_reading)
-						{
-							send(response.fd, response.content.c_str(), response.content.length(), 0);
-							goto close_socket;
-						}
-					}
-				}
-				else
-					goto close_socket;
-				// else
-				// {
-				// 	ft_send_error(status_code, config, response);
-				// 	goto close_socket;
-				// }
-			}
-			else if (status_code == 2)
-			{
-				if(!response_post(config, response))
-					goto close_socket;
-			}
-			else if (status_code == 3)
-			{
-				if(!response_delete(config, response))
-					goto close_socket;
-			}
-			else
-			{
-				ft_send_error(status_code, config, response);
-				goto close_socket;
-			}
-			clients[fd] = response;
-		}
-		else
-		{
-			clients[fd].content = read_File(clients[fd]);
-			send(fd, clients[fd].content.c_str(), clients[fd].content.length(), 0);
-		}
+		if (close_connexion)
+			goto close_socket;
+
 		continue;
 close_socket:
-			std::cout << "--------- invalid request: close socket"<< std::endl;
-			clients.erase(fd);
-			watchlist_del_fd(wfd, fd);
-			close(fd);
+		std::cout << "--------- closing socket"<< std::endl;
+		sched_unqueue_task(tasks, fd);
+		watchlist_del_fd(wfd, fd);
+		close(fd);
 	}
 }
