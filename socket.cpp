@@ -5,7 +5,7 @@
 #elif __linux__
 #include <sys/epoll.h>
 #endif
-#include <fcntl.h>
+
 // todo: move these functions into a separate files
 // todo: connection: keep-alive
 /**
@@ -52,8 +52,7 @@ void accept_connection(int wfd, int server) {
 	socklen_t len = sizeof caddress;
 	int client;
 	assert((client = accept(server, (struct sockaddr *)&caddress, &len)) != -1);
-	assert(fcntl(client, F_SETFL, O_NONBLOCK) == 0);
-
+	
 #ifdef __APPLE__
 		watchlist_add_fd(wfd, client, EVFILT_READ);
 #elif __linux__

@@ -4,7 +4,6 @@
 #include <sstream>
 #include <vector>
 #include <cstring>
-#include <fcntl.h>
 #include "webserv.hpp"
 
 // request
@@ -172,17 +171,11 @@ int get_request(int fd, HttpRequest &request) {
 	bool done;
 	int iter = 0;
 	int max_iter = 5;
-	assert(fcntl(fd, F_SETFL, O_NONBLOCK) == 0);
 
 	while (1) {
 		done = false;
 		// todo: check if the socket would block
-		ret = recv(fd, buffer, sizeof(buffer) - 1, 0);
-		if (ret < 0 && errno == -EAGAIN) {
-			debug("would block");
-			return REQ_TO_BE_CONT;
-		}
-		if (ret < 0)
+		if ((ret = recv(fd, buffer, sizeof(buffer) - 1, 0)) < 0)
 			return REQ_CONN_BROKEN;
 		if (ret == 0) {
 			debug("recv == 0\n");

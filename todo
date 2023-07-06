@@ -24,10 +24,17 @@ todo:
 	simple static server
 
 ////////////////////////////////////////////////////////////////////
+
 form data: upload files
+=> check if status_code in config = 301 or 302 else error
+=> if i do autoindex and i click in video video play then return to autoindex program exit 
+=> shoud exist one return
+=> when return have a big file program exit
+=> send me the extention of file to be posted
+////////////////////////////////////////////////////////////////////
 cgi
-in / => if not found / in the end added
+handel if i don't have / in the end of "dir: /Users/kadjane/Desktop/server_3"
 open not work 500
-autoindex ..
-check if status_code in config = 301 or 302 else error
+#autoindex ..
 infinit redirection in => /Users/kadjane/Desktop/web_serv2/srcs/book.pdf
+add fonction delete file created

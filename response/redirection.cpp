@@ -1,7 +1,7 @@
 #include "../webserv.hpp"
 #include "../config.hpp"
 
-int	response_redirect(HttpResponse& response, Config& config)
+int	response_redirect(HttpResponse& response)
 {
 	std::string type_rep;
 	std::string	response_buffer;
@@ -13,9 +13,12 @@ int	response_redirect(HttpResponse& response, Config& config)
 	if (type_rep == "is_file")
 	{
 		if (response.location_it->creturn.code)
-			response_Http_Request(response.location_it->creturn.code, config, response);
+		{
+			std::cout << "response.location_it->creturn.to == " << response.location_it->creturn.to << std::endl;
+			response_Http_Request(response.location_it->creturn.code, response);
+		}
 		else
-			response_Http_Request(302, config, response);
+			response_Http_Request(302, response);
 		return (1);
 	}
 	else if (type_rep == "is_directory")
@@ -32,7 +35,7 @@ int	response_redirect(HttpResponse& response, Config& config)
 			send(response.fd, response_buffer.c_str(), response_buffer.size(), 0);
 			return (0);
 		}
-		else if (response_Http_Request(301,config, response))
+		else if (response_Http_Request(301, response))
 			return (1);
 	}
 	else

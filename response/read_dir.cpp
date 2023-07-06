@@ -45,7 +45,7 @@ std::string content_dir(std::string dir,HttpResponse& response, std::vector<std:
 	return ("not found");
 }
 
-int	res_content_dir(int status_code, Config& config, HttpResponse& response)
+int	res_content_dir(int status_code, HttpResponse& response)
 {
 	std::vector<std::string>			content;
 	std::vector<std::string>::iterator	content_it;
@@ -54,8 +54,17 @@ int	res_content_dir(int status_code, Config& config, HttpResponse& response)
 	(void) status_code;
 	if (content_dir(response.path_file, response, content) == "found")
 	{
+		std::cout << "response.location_it->index == " << response.location_it->index << std::endl;
 		if (!response.location_it->index.empty())
 		{
+			if (response.request.method == "POST")
+			{
+				if (*response.path_file.rbegin()!= '/')
+					response.path_file += "/" +response.location_it->index;
+				else
+					response.path_file += response.location_it->index;
+				return (1);
+			}
 			content_it = std::find(content.begin(), content.end(), response.location_it->index);
 			if (content_it != content.end())
 			{
@@ -69,6 +78,14 @@ int	res_content_dir(int status_code, Config& config, HttpResponse& response)
 		content_it = std::find(content.begin(), content.end(), "index.html");
 		if (content_it != content.end())
 		{
+			if (response.request.method == "POST")
+			{
+				if (*response.path_file.rbegin()!= '/')
+					response.path_file += "/index.html";
+				else
+					response.path_file += "index.html";
+				return (1);
+			}
 			response.code = 200;
 			response.reason_phrase = "ok";
 			response.path_file += "index.html";
@@ -83,10 +100,10 @@ int	res_content_dir(int status_code, Config& config, HttpResponse& response)
 		}
 		else
 		{
-			ft_send_error(403, config, response);
+			ft_send_error(403, response);
 			return(0);
 		}
 	}
-	ft_send_error(404, config, response);
+	ft_send_error(500, response);
 	return(0);
 }

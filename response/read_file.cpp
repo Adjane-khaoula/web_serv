@@ -2,7 +2,7 @@
 #include "../config.hpp"
 #include <iostream>
 
-int get_path(Config config, HttpResponse& response)
+int get_path(HttpResponse& response)
 {
 	std::string target = response.location_it->target;
 	std::string dir = response.location_it->dir;
@@ -12,16 +12,23 @@ int get_path(Config config, HttpResponse& response)
 	size_t	find = url.find(target);
 	if (!dir.empty())
 	{
-		response.path_file = url.substr(0, find) + dir + url.substr(find + target.length(), url.length());
+		// std::cout << "\033[32m" << "{ url == " << url << "}" << "\033[00m" << std::endl;
+		if (url.substr(0, find) != "" && *dir.begin() != '/')
+			response.path_file = url.substr(0, find)+ "/" + dir + url.substr(find + target.length(), url.length());
+		else
+			response.path_file = url.substr(0, find) + dir + url.substr(find + target.length(), url.length());
 		// std::cout << "*********************> " << response.path_file << std::endl;
 		return (1);
 	}
 	if (!response.server_it->root.empty())
 	{
-		response.path_file = url.substr(0, find) + root + url.substr(find + target.length(), url.length());
+		if (url.substr(0, find) != "" && *dir.begin() != '/')
+			response.path_file = url.substr(0, find)+ "/" + root + url.substr(find + target.length(), url.length());
+		else
+			response.path_file = url.substr(0, find) + root + url.substr(find + target.length(), url.length());
 		return (1);
 	}
-	ft_send_error(404, config, response);
+	ft_send_error(404, response);
 	return (0);
 }
 
@@ -79,12 +86,21 @@ void read_File(HttpResponse& response)
 			buffer.resize(chunkSize);
 			file.seekg(response.byte_reading);
 			file.read(buffer.data(), chunkSize);
-			response.byte_reading += file.gcount();
+			ssize_t readi = file.gcount();
 			response.content.assign(buffer.begin(), buffer.end());
+			ssize_t i = send(response.fd,response.content.data(), readi, 0);
+			// while (i < 0)
+			// {
+			// 	perror("client send file error");
+			// 	usleep(100);
+			// 	i = send(response.fd,response.content.data(), readi, 0);
+			// }
+			if (i > 0)
+				response.byte_reading += i;
 			// std::string str(response.content.begin(), response.content.end());
 			// std::cout << "\033[33m" << "{" << str << "}" << "\033[0m"  << std::endl;
 		}
-		else if (response.byte_reading == length)
+		if (response.byte_reading == length)
 		{
 
 			response.byte_reading = 0;
