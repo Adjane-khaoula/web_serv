@@ -68,17 +68,18 @@ int	response_get(HttpResponse& response)
 		type_rep = type_repo(response.path_file);
 		if (type_rep == "is_file")
 		{
+			// std::cout << "!!!!!!!!!!!!!!!" << response.location_it->cgi[0].cgi_pass<< std::endl;
 			if (response.location_it->cgi.empty())
 			{
 				if(response_Http_Request(200, response))
 					return (1);
 			}
-			// else
-			// {
-			// 	// std::cout << "!!!!!!!!!!!!!!!!!!!\n";
-			// 	fill_response(200, response);
-			// 	execute_cgi(response);
-			// }
+			else
+			{
+				std::cout << "!!!!!!!!!!!!!!! = " <<type_rep<< std::endl;
+				fill_response(200, response);
+				execute_cgi(response);
+			}
 		}
 		else if (type_rep == "is_directory")
 		{
