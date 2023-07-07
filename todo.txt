@@ -44,7 +44,7 @@ add fonction delete file created
 cgi:
   => check extention => done
   => execute script => done
-  => parse file
-  => send response
-  => parce query string
+  => parse file => done
+  => send response => done
+  => parce query string replace %20 %2B + by " "
   => protection for the functions

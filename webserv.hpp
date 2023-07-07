@@ -101,7 +101,7 @@ class HttpResponse: public SchedulableEntity {
 		HttpRequest request;
 		int byte_reading;
 		int	fd;
-		// std::ofstream *out;/////
+		std::string query_str;
 		int	url_changed;
 		enum SchedulableEntityTypes get_type() {
 			return RESPONSE;
