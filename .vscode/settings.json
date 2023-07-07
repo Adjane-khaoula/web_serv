@@ -1,5 +1,6 @@
 {
 	"files.associations": {
+		"*.command": "shellscript",
 		"__bit_reference": "cpp",
 		"__hash_table": "cpp",
 		"__string": "cpp",
@@ -66,7 +67,8 @@
 		"typeinfo": "cpp",
 		"utility": "cpp",
 		"vector": "cpp",
-		"filesystem": "cpp"
+		"filesystem": "cpp",
+		"set": "cpp"
 	},
 	"cSpell.words": [
 		"creturn",

@@ -37,6 +37,7 @@ int new_request(HttpRequest &request, HttpResponse &response, int status_code) {
 	if (!status_code)
 	{
 		status_code = check_req_line_headers(request);
+		// std::cout << "****************************** "<< status_code << std::endl;
 		if (status_code == 1)
 		{
 			if (response_get(response))

@@ -56,6 +56,22 @@ int response_Http_Request(int status_code , HttpResponse& response)
 	return (0);
 }
 
+std::vector<CGI>::iterator check_extention(HttpResponse &response)
+{
+	std::string path = response.path_file;
+	std::vector<CGI>::iterator cgi_it;
+
+	if (!response.location_it->cgi.empty())
+	{
+		for (cgi_it = response.location_it->cgi.begin(); cgi_it != response.location_it->cgi.end(); cgi_it++)
+		{
+			if (path.substr(path.find_last_of(".") + 1, path.length()) == cgi_it->file_extension)
+				break ;
+		}
+	}
+	return (cgi_it);
+}
+
 int	response_get(HttpResponse& response)
 {
 	std::string type_rep;
@@ -64,21 +80,22 @@ int	response_get(HttpResponse& response)
 		return (response_redirect(response));
 	if (get_path(response))
 	{
-		std::cout << "path == " << response.path_file << std::endl;
+		// std::cout << "path == " << response.path_file << std::endl;
 		type_rep = type_repo(response.path_file);
 		if (type_rep == "is_file")
 		{
-			// std::cout << "!!!!!!!!!!!!!!!" << response.location_it->cgi[0].cgi_pass<< std::endl;
-			if (response.location_it->cgi.empty())
+
+			if (check_extention(response) == response.location_it->cgi.end())
 			{
 				if(response_Http_Request(200, response))
 					return (1);
 			}
 			else
 			{
-				std::cout << "!!!!!!!!!!!!!!! = " <<type_rep<< std::endl;
+				// std::cout << "!!!!!!!!!!!!!!! = " <<type_rep<< std::endl;
 				fill_response(200, response);
 				execute_cgi(response);
+				return (1);
 			}
 		}
 		else if (type_rep == "is_directory")

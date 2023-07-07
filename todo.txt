@@ -31,11 +31,20 @@ form data: upload files
 => shoud exist one return
 => when return have a big file program exit
 => send me the extention of file to be posted
+=> check if the extention cgi is php or py
 
 ////////////////////////////////////////////////////////////////////
-cgi
 handel if i don't have / in the end of "dir: /Users/kadjane/Desktop/server_3"
 open not work 500
 #autoindex ..
 infinit redirection in => /Users/kadjane/Desktop/web_serv2/srcs/book.pdf
 add fonction delete file created
+
+
+cgi:
+  => check extention => done
+  => execute script => done
+  => parse file
+  => send response
+  => parce query string
+  => protection for the functions
