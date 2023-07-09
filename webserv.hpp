@@ -176,6 +176,7 @@ void dump_request(HttpRequest &request);
 int	response_rewrite(HttpResponse&  response);
 int	response_redirect(HttpResponse& response);
 void    execute_cgi(HttpResponse &response);
+void parse_query_string(HttpResponse &response);
 
 
 #endif // WEBSERV

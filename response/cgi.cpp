@@ -15,7 +15,7 @@ char** get_env(HttpResponse& response)
     vect.push_back("CONTENT_LENGTH=0"  + response.headers["Content-Length"]);
     vect.push_back("REDIRECT_STATUS=200");
     vect.push_back("GATEWAY_INTERFACE=CGI/1.1");
-    vect.push_back("QUERY_STRING=name=khawla");
+    vect.push_back("QUERY_STRING=name=kh+awla&age=56");// + response.query_str);
     // vect.push_back("REQUEST_url=/Users/kadjane/Desktop/web_serv2/test.php"); 
     // vect.push_back("CONTENT_TYPE=text/html");
 
@@ -43,6 +43,34 @@ char** get_env(HttpResponse& response)
     }
     env[vect.size()] = NULL; 
     return env;
+}
+
+void parse_query_string(HttpResponse &response)
+{
+	std::string query_str_parsed;
+	std::vector<std::string> space;
+	space.push_back("%20");
+	space.push_back("%2B");
+	space.push_back("+");
+	int find = true;
+
+    query_str_parsed += response.query_str;
+	while (find)
+	{
+		find = false;
+		for (std::vector<std::string>::iterator space_it = space.begin(); space_it != space.end(); space_it++)
+		{
+			if (query_str_parsed.find(*space_it) != std::string::npos)
+			{
+				query_str_parsed = query_str_parsed.substr(0,query_str_parsed.find(*space_it)) + " "
+                    + query_str_parsed.substr(query_str_parsed.find(*space_it) + (*space_it).length(), query_str_parsed.length());
+                std::cout << "\033[33m" << "query_parsed == {" << query_str_parsed << "}" << "\033[00m" << std::endl;
+				find = true;
+                break ;
+			}
+		}
+	}
+	std::cout << "\033[32m" << "*******> {" << query_str_parsed << "\033[0m" << std::endl;
 }
 
 void cgi_response_content(HttpResponse & response)

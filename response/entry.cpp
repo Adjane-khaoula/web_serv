@@ -29,29 +29,6 @@ int	send_response(int fd, HttpRequest& request, HttpResponse& response, int stat
 	return (0);
 }
 
-void get_query_string(HttpResponse &response)
-{
-	std::string query_str_parsed;
-	std::string url = response.request.url;
-	std::vector<std::string> space({"%20", "+", "%2B"});
-	// std::vector<std::string> space = {"%20", "+", "%2B"};
-	int find = true;
-
-	while (find)
-	{
-		find = false;
-		for (std::vector<std::string>::iterator space_it = space.begin(); space_it != space.end(); space_it++)
-		{
-			if (url.find(*space_it) != std::string::npos)
-			{
-				query_str_parsed = url.substr(0,url.find(*space_it)) + " " + url.substr(url.find(*space_it) + (*space_it).length(), url.length());
-				find = true;
-			}
-		}
-	}
-	std::cout << "\033[32m" << "*******> {" << query_str_parsed << "\033[0m" << std::endl;
-}
-
 int new_request(HttpRequest &request, HttpResponse &response, int status_code) {
 
 	std::string response_buffer;
@@ -61,7 +38,7 @@ int new_request(HttpRequest &request, HttpResponse &response, int status_code) {
 	{
 		status_code = check_req_line_headers(request);
 		// std::cout << "****************************** "<< status_code << std::endl;
-		get_query_string(response);
+		
 		if (status_code == 1)
 		{
 			if (response_get(response))
