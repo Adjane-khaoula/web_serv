@@ -7,7 +7,7 @@ Content-type: text/html; charset=UTF-8
     <title>Name and Age</title>
 </head>
 <body>
-    <form action="" method="GET">
+    <form action="" method="POST">
         <label for="name">Name:</label>
         <input type="text" name="name" id="name" required><br><br>
 
@@ -17,5 +17,5 @@ Content-type: text/html; charset=UTF-8
         <input type="submit" value="Submit">
     </form>
 
-    <p style="color: green;">The age of kh awla is: 56</p></body>
+    </body>
 </html>

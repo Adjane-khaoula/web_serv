@@ -54,7 +54,7 @@ int new_request(HttpRequest &request, HttpResponse &response, int status_code) {
 				{
 					response.headers["content-length"] = content_length;
 					response_buffer = generate_http_response(response);
-					std::cout << "\033[33m" << "{" << response_buffer << "}" << "\033[0m"  << std::endl;
+					// std::cout << "\033[33m" << "{" << response_buffer << "}" << "\033[0m"  << std::endl;
 					send(response.fd, response_buffer.c_str(), response_buffer.length(), 0);
 				}
 			}

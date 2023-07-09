@@ -39,11 +39,10 @@ void	upload_exist(HttpResponse& response, std::string& upload_path)
 		ft_send_error(501, response);
 }
 
-void	upload_not_exist(HttpResponse& response)
+void	upload_not_exist(HttpResponse& response)//////////////////////
 {
 	std::string type_rep;
 
-	// std::cout << "@@@@@@@@@@@@@@@@@@@@@ " << std::endl;
 	if (get_path(response))
 	{
 		type_rep = type_repo(response.path_file);
@@ -53,6 +52,20 @@ void	upload_not_exist(HttpResponse& response)
 			{
 				// std::cout << "!!!!!!!!!!!!!!!!!!!! " << std::endl;
 				ft_send_error(403, response);
+				return ;
+			}
+			if (check_extention(response) == response.location_it->cgi.end())
+			{
+				if(response_Http_Request(200, response))
+					return ;
+			}
+			else
+			{
+				// std::cout << "!!!!!!!!!!!!!!! = " <<type_rep<< std::endl;
+				// std::cout << "@@@@@@@@@@@@@@@@@@@@@ "<< response.path_file << std::endl;
+				fill_response(200, response);
+				execute_cgi(response);
+				return ;
 			}
 		}
 		else if (type_rep == "is_directory")

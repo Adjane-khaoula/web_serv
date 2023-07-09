@@ -78,11 +78,12 @@ int	response_get(HttpResponse& response)
 
 	if (!response.location_it->creturn.to.empty())
 		return (response_redirect(response));
+	
 	if (get_path(response))
 	{
 		// std::cout << "\033[32m path == " << response.query_str << "\033[00m" << std::endl;
-		if (!response.query_str.empty())
-			parse_query_string(response);
+		// if (!response.query_str.empty())
+		// 	parse_query_string(response);
 		std::cout << "path == " << response.path_file << std::endl;
 		type_rep = type_repo(response.path_file);
 		if (type_rep == "is_file")

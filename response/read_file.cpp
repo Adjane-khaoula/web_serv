@@ -2,35 +2,6 @@
 #include "../config.hpp"
 #include <iostream>
 
-// int get_path(HttpResponse& response)
-// {
-// 	std::string target = response.location_it->target;
-// 	std::string dir = response.location_it->dir;
-// 	std::string url = response.request.url;
-// 	std::string root = response.server_it->root;
-	
-// 	size_t	find = url.find(target);
-// 	if (!dir.empty())
-// 	{
-// 		// std::cout << "\033[32m" << "{ url == " << url << "}" << "\033[00m" << std::endl;
-// 		if (url.substr(0, find) != "" && *dir.begin() != '/')
-// 			response.path_file = url.substr(0, find)+ "/" + dir + url.substr(find + target.length(), url.length());
-// 		else
-// 			response.path_file = url.substr(0, find) + dir + url.substr(find + target.length(), url.length());
-// 		// std::cout << "*********************> " << response.path_file << std::endl;
-// 		return (1);
-// 	}
-// 	if (!response.server_it->root.empty())
-// 	{
-// 		if (url.substr(0, find) != "" && *dir.begin() != '/')
-// 			response.path_file = url.substr(0, find)+ "/" + root + url.substr(find + target.length(), url.length());
-// 		else
-// 			response.path_file = url.substr(0, find) + root + url.substr(find + target.length(), url.length());
-// 		return (1);
-// 	}
-// 	ft_send_error(404, response);
-// 	return (0);
-// }
 int get_path(HttpResponse& response)
 {
 	std::string target = response.location_it->target;
@@ -47,7 +18,7 @@ int get_path(HttpResponse& response)
 			if (url.find("?") != std::string::npos)
 			{
 				response.query_str = url.substr(url.find("?") + 1, url.length());
-				std::cout << "\033[34m" << "query == {" << response.query_str << "}" << "\033[00m" << std::endl;
+				// std::cout << "\033[34m" << "query == {" << response.query_str << "}" << "\033[00m" << std::endl;
 			}
 			// response.query_str = url.substr(url.find("?") + 1, url.length());
 			// std::cout << "\033[32m" << "query == {" << url.substr(url.find("?") + 1, url.length()) << "}" << "\033[00m" << std::endl;
@@ -58,7 +29,7 @@ int get_path(HttpResponse& response)
 			if (url.find("?") != std::string::npos)
 			{
 				response.query_str = url.substr(url.find("?") + 1, url.length());
-				std::cout << "\033[34m" << "query == {" << response.query_str << "}" << "\033[00m" << std::endl;
+				// std::cout << "\033[34m" << "query == {" << response.query_str << "}" << "\033[00m" << std::endl;
 			}
 		}
 		return (1);

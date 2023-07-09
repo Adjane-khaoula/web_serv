@@ -58,7 +58,7 @@ int response_delete(HttpResponse& response)
 	if (get_path(response))
 	{
 		type_rep = type_repo(response.path_file);
-		std::cout << "path-dir == " << response.path_file << std::endl;
+		// std::cout << "path-dir == " << response.path_file << std::endl;
 		if (type_rep == "is_file")
 		{
 			// if (response.location_it->cgi.empty())
