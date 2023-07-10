@@ -8,8 +8,8 @@
     <?php
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // Check if the form has been submitted
-        // echo $_POST['name'];
-        // echo $_POST['age'];
+        echo $_POST['name'];
+        echo $_POST['age'];
         if (isset($_POST['name']) && isset($_POST['age'])) {
             // echo '++++++++++++++++++++++++++++++++++';
             // Retrieve the submitted name and age

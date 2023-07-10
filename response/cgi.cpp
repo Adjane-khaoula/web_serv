@@ -21,7 +21,7 @@ char** get_env(HttpResponse& response)
     vect.push_back("GATEWAY_INTERFACE=CGI/1.1");
     vect.push_back("QUERY_STRING=" + response.query_str);
     // vect.push_back("CONTENT_TYPE=application/x-www-form-urle÷ncoded");
-    // std::cout << "++++++++++++++++++++++++++++>" << response.request.headers["Content-Type"] << std::endl;
+    std::cout << "++++++++++++++++++++++++++++> {" << response.request.headers["Content-Type"] << "}" << std::endl;
     vect.push_back("CONTENT_TYPE=" + response.request.headers["Content-Type"]);
     // vect.push_back("REQUEST_url=/Users/kadjane/Desktop/web_serv2/test.php"); 
     // vect.push_back("CONTENT_TYPE=text/html");
@@ -37,6 +37,8 @@ char** get_env(HttpResponse& response)
     size_t i;
     for (i = 0; i < vect.size(); ++i)
     {
+        if (response.request.method == "POST")
+            std::cout << SKY << "{"<< vect[i] << "}"<< END << std::endl;
         env[i] = new char[vect[i].length() + 1];
         strcpy(env[i], vect[i].c_str());
     }
@@ -85,48 +87,40 @@ void    execute_cgi(HttpResponse &response)
             // std::cout << "\033[32m" << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << "\033[0m" << std::endl;
             // std::cout << "\033[34m content == {" << str <<  "} \033[00m" << std::endl; 
             content << str;
+            content.close();
         }
-        content.close();
         int input_fd = open("cgi.txt", O_RDONLY , 0666);
         // std::cout << "################################ "<< input_fd << std::endl;
         char **env;
         env = get_env(response);
+
+        std::cerr << PURPLE << path_executable << END << std::endl;
+        std::cerr << PURPLE  << "path == " << path << END << std::endl;
         char* const argv[] = {(char*)path_executable.c_str(), (char*)path.c_str(), NULL};
-        // if (dup2(output_fd, 1) == -1 || dup2(output_fd, 2) == -1) {
-        //     std::cout << "Error duplicating file descriptor." << std::endl;
-        //     return ;
-        // }
-        
-        if (dup2(output_fd, 1) < 0) {
-            std::cout << RED << "Error duplicating input file descriptor."<< END << std::endl;
-            close(input_fd);
-            return;
+        if (dup2(output_fd, 1) == -1) {
+            std::cout << "Error duplicating file descriptor." << std::endl;
+            return ;
         }
-        // std::cout << "&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&\n";
-        // dup2(output_fd, 2);
-        // dup2(input_fd, 0);
+        // dup2(output_fd, 2) == -1
         if (dup2(input_fd, STDIN_FILENO) < 0) {
             std::cerr << "Error duplicating input file descriptor." << std::endl;
             close(input_fd);
             return;
         }
         // close(input_fd);
-        // close(output_fd);
 
         // Read the content from STDIN
         std::string stdinContent;
+        std::ofstream cin("cin_file");
         while(std::getline(std::cin, stdinContent))
         {
-
-            std::cerr << "~~~~~~~~~~~~~~~~> " << YELLOW << stdinContent << END << std::endl;
+            cin << stdinContent;
         }
-        // else
-        //     std::cout << "cin is empty" << std::endl;
-       
-       if (execve(argv[0], argv, env) < 0){
-            std::cerr << RED << "Error executing CGI script."<< END << std::endl;
-            return ;
-        }
+        cin.close(); 
+    //    if (execve(argv[0], argv, env) < 0){
+    //         std::cerr << RED << "Error executing CGI script."<< END << std::endl;
+    //         return ;
+    //     }
     }
     else
     {

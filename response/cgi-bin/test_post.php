@@ -13,19 +13,5 @@
 
         <input type="submit" value="Submit">
     </form>
-
-    <!-- <?php
-    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-        // Check if the form has been submitted
-        if (isset($_POST['name']) && isset($_POST['age'])) {
-            // Retrieve the submitted name and age
-            $name = $_POST['name'];
-            $age = $_POST['age'];
-
-            // Display the output
-            echo '<p style="color: green;">The age of ' . $name .  ' is: ' . $age . '</p>';
-        }
-    }
-    ?> -->
 </body>
 </html>
