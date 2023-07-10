@@ -30,6 +30,16 @@
 #define WATCHL_NO_PENDING 0
 #define REQ_CONN_BROKEN -1
 #define REQ_TO_BE_CONT -2
+/////////////////////////////////////color//////////////////////////////////////////////
+#define GRAY "\033[90m"
+#define RED "\033[91m"
+#define GREEN "\033[92m"
+#define YELLOW "\033[93m"
+#define BLUE "\033[94m"
+#define PURPLE "\033[95m"
+#define SKY "\033[96m"
+
+#define END "\033[00m"
 
 #define debug(msg) std::cerr << "*********************" << __FILE__ << ":" << __LINE__ << " " << msg << std::endl
 
@@ -165,7 +175,7 @@ std::string	generate_filename();
 int response_post(HttpResponse& response);
 void	add_extention(std::string& filename,HttpResponse& response);
 void	upload_exist(HttpResponse& response, std::string& upload_path);
-void	upload_not_exist(HttpResponse& response);
+int			upload_not_exist(HttpResponse& response);
 int response_delete(HttpResponse& response);
 // int continue_previous_response(HttpResponse &response);
 // int new_request(HttpRequest &request);

@@ -39,6 +39,7 @@ open not work 500
 #autoindex ..
 infinit redirection in => /Users/kadjane/Desktop/web_serv2/srcs/book.pdf
 add fonction delete file created
+if / not exist path == server route
 
 
 cgi:

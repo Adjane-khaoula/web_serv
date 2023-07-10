@@ -4,7 +4,7 @@
     <title>Name and Age</title>
 </head>
 <body>
-    <form action="" method="POST">
+    <form action="process_form.php" method="POST" enctype="multipart/form-data">
         <label for="name">Name:</label>
         <input type="text" name="name" id="name" required><br><br>
 
@@ -14,7 +14,7 @@
         <input type="submit" value="Submit">
     </form>
 
-    <?php
+    <!-- <?php
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // Check if the form has been submitted
         if (isset($_POST['name']) && isset($_POST['age'])) {
@@ -23,9 +23,9 @@
             $age = $_POST['age'];
 
             // Display the output
-            echo "The age of $name is $age";
+            echo '<p style="color: green;">The age of ' . $name .  ' is: ' . $age . '</p>';
         }
     }
-    ?>
+    ?> -->
 </body>
 </html>

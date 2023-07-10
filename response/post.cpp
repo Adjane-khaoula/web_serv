@@ -39,7 +39,7 @@ void	upload_exist(HttpResponse& response, std::string& upload_path)
 		ft_send_error(501, response);
 }
 
-void	upload_not_exist(HttpResponse& response)//////////////////////
+int	upload_not_exist(HttpResponse& response)//////////////////////
 {
 	std::string type_rep;
 
@@ -48,25 +48,37 @@ void	upload_not_exist(HttpResponse& response)//////////////////////
 		type_rep = type_repo(response.path_file);
 		if (type_rep == "is_file")
 		{
-			if (response.location_it->cgi.empty())
+			if (response.location_it->cgi.empty() || check_extention(response) == response.location_it->cgi.end())
 			{
 				// std::cout << "!!!!!!!!!!!!!!!!!!!! " << std::endl;
 				ft_send_error(403, response);
-				return ;
-			}
-			if (check_extention(response) == response.location_it->cgi.end())
-			{
-				if(response_Http_Request(200, response))
-					return ;
+				return(0);
 			}
 			else
 			{
 				// std::cout << "!!!!!!!!!!!!!!! = " <<type_rep<< std::endl;
 				// std::cout << "@@@@@@@@@@@@@@@@@@@@@ "<< response.path_file << std::endl;
 				fill_response(200, response);
+				// if (!response.request.content.empty())
+    			// {
+				// 	std::ofstream content("cgi.txt");
+				// 	if (!content.is_open())
+				// 		std::cout << "----------------------------->not opened" << std::endl;
+				// 	std::string str(response.request.content.begin(), response.request.content.end());
+       			// 	// std::cout << "\033[32m" << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << "\033[0m" << std::endl;
+       			// 	// std::cout << "\033[34m content == {" << str <<  "} \033[00m" << std::endl; 
+       			// 	content << str;
+				// 	content.close();
+    			// }
+
 				execute_cgi(response);
-				return ;
+				return(0);
 			}
+			// if (check_extention(response) == response.location_it->cgi.end())
+			// {
+			// 	if(response_Http_Request(200, response))
+			// 		return (0);
+			// }
 		}
 		else if (type_rep == "is_directory")
 		{
@@ -89,6 +101,7 @@ void	upload_not_exist(HttpResponse& response)//////////////////////
 		else
 			ft_send_error(500, response);
 	}
+	return (0);
 }
 std::string	generate_filename()
 {
@@ -151,6 +164,10 @@ int response_post(HttpResponse& response)
 		upload_exist(response, upload_path);
 	}
 	else
-		upload_not_exist(response);
+	{
+		if (!upload_not_exist(response))
+			return (1);
+
+	}
 	return (0);
 }
