@@ -1,9 +1,1 @@
------------------------------397419515918575523783707707397
-Content-Disposition: form-data; name="name"
-
-khawla
------------------------------397419515918575523783707707397
-Content-Disposition: form-data; name="age"
-
-55
------------------------------397419515918575523783707707397--
+name=khawla&email=khawla%40gmail.com

@@ -101,17 +101,13 @@ void check_extention(HttpResponse &response)
 	std::vector<CGI>::iterator cgi_it;
 
 	response.cgi_it = response.location_it->cgi.end();
-	// if (!response.location_it->cgi.empty())
-	// {
-		for (cgi_it = response.location_it->cgi.begin(); cgi_it != response.location_it->cgi.end(); cgi_it++)
+	for (cgi_it = response.location_it->cgi.begin(); cgi_it != response.location_it->cgi.end(); cgi_it++)
+	{
+		if (path.substr(path.find_last_of(".") + 1, path.length()) == cgi_it->file_extension
+			&& (cgi_it->file_extension == "php" || cgi_it->file_extension == "py"))
 		{
-			if (path.substr(path.find_last_of(".") + 1, path.length()) == cgi_it->file_extension)
-			{
-				response.cgi_it = cgi_it;
-				break ;
-			}
+			response.cgi_it = cgi_it;
+			break ;
 		}
-		// response.cgi_it = cgi_it;
-	// }
-	// return (cgi_it);
+	}
 }

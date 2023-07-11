@@ -59,32 +59,32 @@ int	upload_not_exist(HttpResponse& response)
 		type_rep = type_repo(response.path_file);
 		if (type_rep == "is_file")
 		{
-			check_extention(response);
 			if (response.location_it->cgi.empty())
 			{
 				ft_send_error(403, response);
 				return(0);
 			}
-			if (response.cgi_it == response.location_it->cgi.end())
-			{
-				ft_send_error(500, response);
-				return(0);
-			}
 			else
 			{
-				fill_response(200, response);
-				if (!response.request.content.empty())
-    			{
-					std::ofstream content("cgi.txt");
-					if (!content.is_open())
-						ft_send_error(500, response);
-					std::string str(response.request.content.begin(), response.request.content.end());
-       				content << str;
-					content.close();
-    			}
-				execute_cgi(response);
-				return(0);
+				check_extention(response);
+				if (response.cgi_it == response.location_it->cgi.end())
+				{
+					ft_send_error(403, response);
+					return(0);
+				}
 			}
+			fill_response(200, response);
+			if (!response.request.content.empty())
+    		{
+				std::ofstream content("cgi.txt");
+				if (!content.is_open())
+					ft_send_error(500, response);
+				std::string str(response.request.content.begin(), response.request.content.end());
+       			content << str;
+				content.close();
+    		}
+			execute_cgi(response);
+			return(0);
 		}
 		else if (type_rep == "is_directory")
 		{

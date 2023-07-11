@@ -1,7 +1,3 @@
-
-
-print("Content-type: text/html\n")
-
 print('''
 <html>
 <head>
@@ -19,7 +15,6 @@ print('''
 import cgi
 
 form = cgi.FieldStorage()
-
 if form.getvalue('name') and form.getvalue('email'):
     name = form.getvalue('name')
     email = form.getvalue('email')
@@ -28,7 +23,7 @@ if form.getvalue('name') and form.getvalue('email'):
     print("<p>Email: {}</p>".format(email))
 else:
     print('''
-    <form action="zulima.jpeg" method="post">
+    <form action="" method="post">
       <label for="name">NAME</label>
       <input type="text" id="name" name="name" required>
       <label for="email">EMAIL</label>

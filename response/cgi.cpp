@@ -36,20 +36,28 @@ void cgi_response_content(HttpResponse & response)
     std::ofstream file("out");
     std::string line;
 
-    while(std::getline(out_file, line) && line != "\r")
+    if (response.cgi_it->file_extension == "php")
     {
-        if (line.find("Content-type") != std::string::npos)
+        while(std::getline(out_file, line) && line != "\r")
         {
-            int length = line.find(";") - (line.find(" ") + 1);
-            response.headers["Content-Type"] = line.substr(line.find(" ") + 1, length);
+            if (line.find("Content-type") != std::string::npos)
+            {
+                int length = line.find(";") - (line.find(" ") + 1);
+                    response.headers["Content-Type"] = line.substr(line.find(" ") + 1, length);
+            }
         }
+        while (std::getline(out_file, line))
+        {
+            line += "\n";
+            file << line;
+        }
+        response.path_file = "out";
     }
-    while (std::getline(out_file, line))
+    else
     {
-        line += "\n";
-        file << line;
+        response.headers["Content-Type"] = "text/html";
+        response.path_file = "output.txt";
     }
-    response.path_file = "out";
 
 }
 // /usr/bin/python
@@ -62,10 +70,12 @@ void    execute_cgi(HttpResponse &response)
     {
         std::cout << "\033[32m type == " << response.cgi_it->cgi_pass << "\033[00m" << std::endl;
         std::string path = response.path_file;
+        std::cout << "\033[32m path == " << response.path_file << "\033[00m" << std::endl;
         std::string path_executable = response.cgi_it->cgi_pass;
         int input_fd  = 0;
         char **env;
-        if (!response.request.content.empty())
+        // if (!response.request.content.empty())
+        if (response.request.method == "POST")
             input_fd = open("cgi.txt", O_RDONLY , 0666);
         env = get_env(response);
         char* const argv[] = {(char*)path_executable.c_str(), (char*)path.c_str(), NULL};
