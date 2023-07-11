@@ -94,3 +94,24 @@ void	ft_send_error(int status_code, HttpResponse& response)
 	// std::cout << "response_buffer == " << response_buffer << std::endl;
 	send(response.fd, response_buffer.c_str(), response_buffer.length(), 0);
 }
+
+void check_extention(HttpResponse &response)
+{
+	std::string path = response.path_file;
+	std::vector<CGI>::iterator cgi_it;
+
+	response.cgi_it = response.location_it->cgi.end();
+	// if (!response.location_it->cgi.empty())
+	// {
+		for (cgi_it = response.location_it->cgi.begin(); cgi_it != response.location_it->cgi.end(); cgi_it++)
+		{
+			if (path.substr(path.find_last_of(".") + 1, path.length()) == cgi_it->file_extension)
+			{
+				response.cgi_it = cgi_it;
+				break ;
+			}
+		}
+		// response.cgi_it = cgi_it;
+	// }
+	// return (cgi_it);
+}

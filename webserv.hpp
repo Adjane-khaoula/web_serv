@@ -103,6 +103,7 @@ class HttpResponse: public SchedulableEntity {
 		std::string content_error;
 		std::vector<Server>::iterator server_it;
 		std::vector<Location>::iterator location_it;
+		std::vector<CGI>::iterator cgi_it;
 		std::string    path_file;
 		std::string old_url;
 		bool get_length;
@@ -187,7 +188,8 @@ int	response_rewrite(HttpResponse&  response);
 int	response_redirect(HttpResponse& response);
 void    execute_cgi(HttpResponse &response);
 void parse_query_string(HttpResponse &response);
-std::vector<CGI>::iterator check_extention(HttpResponse &response);
+// std::vector<CGI>::iterator check_extention(HttpResponse &response);
+void check_extention(HttpResponse &response);
 
 
 #endif // WEBSERV

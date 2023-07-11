@@ -47,5 +47,8 @@ cgi:
   => execute script => done
   => parse file => done
   => send response => done
-  => parce query string replace %20 %2B + by " "
+  => parce query string replace %20 %2B + by " " => done
+  => handel py script
+  => handel cookies
+  => check all and clean the code
   => protection for the functions

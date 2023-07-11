@@ -9,12 +9,15 @@ int	send_response(int fd, HttpRequest& request, HttpResponse& response, int stat
 
 		// response.out = new std::ofstream("filename.png", std::ios::binary);/////////
 		// std::cout << "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@\n";
+		// std::cout << "##############################" << std::endl;
 		init_response(response, request, fd);
 		if (new_request(request, response, status_code))
 			return (1);
 	}
 	else
 	{
+
+		std::cout << YELLOW <<  "@@@@@@@@@@@@>" << fd << END << std::endl;
 		read_File(response);
 		// continue_previous_response(response);
 		// std::cout << "*********************> " << response.finish_reading << std::endl;
@@ -36,6 +39,7 @@ int new_request(HttpRequest &request, HttpResponse &response, int status_code) {
 
 	if (!status_code)
 	{
+		std::cout << RED  << "url: " << response.request.url<< END << std::endl;
 		status_code = check_req_line_headers(request);
 		// std::cout << "****************************** "<< status_code << std::endl;
 		

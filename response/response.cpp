@@ -56,21 +56,22 @@ int response_Http_Request(int status_code , HttpResponse& response)
 	return (0);
 }
 
-std::vector<CGI>::iterator check_extention(HttpResponse &response)
-{
-	std::string path = response.path_file;
-	std::vector<CGI>::iterator cgi_it;
+// void check_extention(HttpResponse &response)
+// {
+// 	std::string path = response.path_file;
+// 	std::vector<CGI>::iterator cgi_it;
 
-	if (!response.location_it->cgi.empty())
-	{
-		for (cgi_it = response.location_it->cgi.begin(); cgi_it != response.location_it->cgi.end(); cgi_it++)
-		{
-			if (path.substr(path.find_last_of(".") + 1, path.length()) == cgi_it->file_extension)
-				break ;
-		}
-	}
-	return (cgi_it);
-}
+// 	if (!response.location_it->cgi.empty())
+// 	{
+// 		for (cgi_it = response.location_it->cgi.begin(); cgi_it != response.location_it->cgi.end(); cgi_it++)
+// 		{
+// 			if (path.substr(path.find_last_of(".") + 1, path.length()) == cgi_it->file_extension)
+// 				break ;
+// 		}
+// 	}
+// 	response.cgi_it = cgi_it;
+// 	// return (cgi_it);
+// }
 
 int	response_get(HttpResponse& response)
 {
@@ -81,22 +82,23 @@ int	response_get(HttpResponse& response)
 	
 	if (get_path(response))
 	{
-		// std::cout << "\033[32m path == " << response.query_str << "\033[00m" << std::endl;
+
 		// if (!response.query_str.empty())
 		// 	parse_query_string(response);
 		std::cout << "path == " << response.path_file << std::endl;
 		type_rep = type_repo(response.path_file);
 		if (type_rep == "is_file")
 		{
+			check_extention(response);
 
-			if (check_extention(response) == response.location_it->cgi.end())
+			// std::cout << "\033[32m type == " << response.cgi_it-> cgi_pass << "\033[00m" << std::endl;
+			if ((!response.location_it->cgi.empty() && response.cgi_it == response.location_it->cgi.end()) || response.location_it->cgi.empty())
 			{
 				if(response_Http_Request(200, response))
 					return (1);
 			}
 			else
 			{
-				// std::cout << "!!!!!!!!!!!!!!! = " <<type_rep<< std::endl;
 				fill_response(200, response);
 				execute_cgi(response);
 				return (1);

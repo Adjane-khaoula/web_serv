@@ -14,6 +14,7 @@ std::string generate_http_response(HttpResponse &res)
 
 void init_response(HttpResponse& response, HttpRequest& request, int fd)
 {
+	// std::cout << "##############################" << request.url << std::endl;
 	response.fd = fd;
 	response.byte_reading = 0;
 	response.request = request;

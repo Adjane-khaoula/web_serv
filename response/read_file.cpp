@@ -6,6 +6,7 @@ int get_path(HttpResponse& response)
 {
 	std::string target = response.location_it->target;
 	std::string dir = response.location_it->dir;
+	// std::cout << YELLOW << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! = "<< response.request.url << END << std::endl;
 	std::string url = response.request.url;
 	std::string root = response.server_it->root;
 	
@@ -78,6 +79,19 @@ std::string read_File_error(std::string Path)
 	buffer << file.rdbuf();
 	return buffer.str();
 }
+// #include <sys/types.h>
+// #include <sys/socket.h>
+// #include <fcntl.h>
+// #include <iostream>
+
+// bool isSocketValid(int socketFD) {
+//     int flags = fcntl(socketFD, F_GETFL);
+//     if (flags == -1) {
+//         // Error occurred while retrieving socket flags
+//         return false;
+//     }
+//     return true;
+// }
 
 void read_File(HttpResponse& response)
 {
@@ -108,15 +122,33 @@ void read_File(HttpResponse& response)
 			file.read(buffer.data(), chunkSize);
 			ssize_t readi = file.gcount();
 			response.content.assign(buffer.begin(), buffer.end());
+			std::cout << YELLOW <<  "***********>" << response.fd << END << std::endl;
+			// char c;
+    		// ssize_t bytesRead = recv(response.fd, &c, 1, MSG_PEEK);
+
+			// std::cout << "@@@@@@@@@@@@@@@@@ == " << bytesRead << std::endl;
+			// if(bytesRead > 0)
+			// {
+				// if (isSocketValid(response.fd))
+				// {
 			ssize_t i = send(response.fd,response.content.data(), readi, 0);
+			if(i < 0)
+				throw std::runtime_error("send feiled");
+			if (i > 0)
+				response.byte_reading += i;
+			// 	}
+			// 	else
+			// 	{
+			// 		std::cout << "------------------"<< std::endl;
+			// 		return ;
+			// 	}
+			// // }
 			// while (i < 0)
 			// {
 			// 	perror("client send file error");
 			// 	usleep(100);
 			// 	i = send(response.fd,response.content.data(), readi, 0);
 			// }
-			if (i > 0)
-				response.byte_reading += i;
 			// std::string str(response.content.begin(), response.content.end());
 			// std::cout << "\033[33m" << "{" << str << "}" << "\033[0m"  << std::endl;
 		}
