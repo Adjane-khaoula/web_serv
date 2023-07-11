@@ -8,9 +8,5 @@ Content-type: text/html; charset=UTF-8
 </head>
 <body>
     <h1> Form Submission Result </h1> 
-    <br />
-<b>Warning</b>:  Undefined array key "name" in <b>/Users/kadjane/Desktop/server_1copy/response/cgi-bin/process_form.php</b> on line <b>11</b><br />
-<br />
-<b>Warning</b>:  Undefined array key "age" in <b>/Users/kadjane/Desktop/server_1copy/response/cgi-bin/process_form.php</b> on line <b>12</b><br />
-</body>
+    kk55<p>The submitted name is: kk</p><p>The submitted age is: 55</p></body>
 </html>

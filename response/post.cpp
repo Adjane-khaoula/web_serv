@@ -59,17 +59,17 @@ int	upload_not_exist(HttpResponse& response)//////////////////////
 				// std::cout << "!!!!!!!!!!!!!!! = " <<type_rep<< std::endl;
 				// std::cout << "@@@@@@@@@@@@@@@@@@@@@ "<< response.path_file << std::endl;
 				fill_response(200, response);
-				// if (!response.request.content.empty())
-    			// {
-				// 	std::ofstream content("cgi.txt");
-				// 	if (!content.is_open())
-				// 		std::cout << "----------------------------->not opened" << std::endl;
-				// 	std::string str(response.request.content.begin(), response.request.content.end());
-       			// 	// std::cout << "\033[32m" << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << "\033[0m" << std::endl;
-       			// 	// std::cout << "\033[34m content == {" << str <<  "} \033[00m" << std::endl; 
-       			// 	content << str;
-				// 	content.close();
-    			// }
+				if (!response.request.content.empty())
+    			{
+					std::ofstream content("cgi.txt");
+					if (!content.is_open())
+						std::cout << "----------------------------->not opened" << std::endl;
+					std::string str(response.request.content.begin(), response.request.content.end());
+       				// std::cout << "\033[32m" << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << "\033[0m" << std::endl;
+       				// std::cout << "\033[34m content == {" << str <<  "} \033[00m" << std::endl; 
+       				content << str;
+					content.close();
+    			}
 
 				execute_cgi(response);
 				return(0);
