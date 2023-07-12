@@ -1,6 +1,5 @@
 #include "../webserv.hpp"
 #include "../config.hpp"
-#include <iostream>
 
 void parse_path(HttpResponse &response, std::string &root)
 {
@@ -20,47 +19,21 @@ void parse_path(HttpResponse &response, std::string &root)
 		if (url.find("?") != std::string::npos)
 			response.query_str = url.substr(url.find("?") + 1, url.length());
 	}
-	// return (1);
 }
 
 int get_path(HttpResponse& response)
 {
-	// std::string target = response.location_it->target;
 	std::string dir = response.location_it->dir;
-	// std::string url = response.request.url;
 	std::string root = response.server_it->root;
 	
-	// size_t	find = url.find(target);
 	if (!dir.empty())
 	{
 		parse_path(response, dir);
-		// if (url.substr(0, find) != "" && *dir.begin() != '/')
-		// {
-		// 	response.path_file = url.substr(0, find)+ "/" + dir + url.substr(find + target.length(), url.find("?") - 1);
-		// 	if (url.find("?") != std::string::npos)
-		// 		response.query_str = url.substr(url.find("?") + 1, url.length());
-		// }
-		// else
-		// {
-		// 	response.path_file = url.substr(0, find) + dir + url.substr(find + target.length(), url.find("?") - 1);
-		// 	if (url.find("?") != std::string::npos)
-		// 		response.query_str = url.substr(url.find("?") + 1, url.length());
-		// }
 		return (1);
 	}
 	if (!response.server_it->root.empty())
 	{
 		parse_path(response, root);
-		// if (url.substr(0, find) != "" && *dir.begin() != '/')
-		// {
-		// 	response.path_file = url.substr(0, find)+ "/" + root + url.substr(find + target.length(), url.find("?") - 1);
-		// 	response.query_str = url.substr(url.find("?") + 1, url.length());
-		// }
-		// else
-		// {
-		// 	response.path_file = url.substr(0, find) + root + url.substr(find + target.length(), url.find("?") - 1);
-		// 	response.query_str = url.substr(url.find("?") + 1, url.length());
-		// }
 		return (1);
 	}
 	ft_send_error(404, response);
@@ -124,26 +97,21 @@ void read_File(HttpResponse& response)
 			ssize_t readi = file.gcount();
 			response.content.assign(buffer.begin(), buffer.end());
 			ssize_t i = send(response.fd,response.content.data(), readi, 0);
-			if(i < 0)
-				perror("client send file error");
-				// throw std::runtime_error("send feiled");
-			if (i > 0)
+			if (i < 0)
+			{
+				response.finish_reading = true;
+				perror("send feiled");
+				file.close();
+				return ;	
+			}
+			if (i >= 0)
 				response.byte_reading += i;
-			// // }
-			// while (i < 0)
-			// {
-			// 	perror("client send file error");
-			// 	usleep(100);
-			// 	i = send(response.fd,response.content.data(), readi, 0);
-			// }
-			// std::string str(response.content.begin(), response.content.end());
-			// std::cout << "\033[33m" << "{" << str << "}" << "\033[0m"  << std::endl;
 		}
 		if (response.byte_reading == length)
 		{
-
 			response.byte_reading = 0;
 			response.finish_reading = true;
+			file.close();
 			return ;
 		}
 		file.close();

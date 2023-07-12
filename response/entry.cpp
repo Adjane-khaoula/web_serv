@@ -77,7 +77,7 @@ int post_req(HttpResponse &response)
 			if (ret < 0)
 			{
 				perror("send feailed");
-				return ;
+				return (1);
 			}
 		}
 	}

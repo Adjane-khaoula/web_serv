@@ -24,6 +24,23 @@ int fill_uplaod_file(HttpResponse &response, std::string &upload_path, std::stri
 	file.close();
 	return (1);
 }
+void send_201_response (HttpResponse &response)
+{
+	std::string response_buffer;
+
+	response.path_file = "www/201.html";
+	fill_response(201, response);
+	response.content_error = read_File_error(response.path_file);
+	response.headers["content-length"] = ft_tostring(response.content_error.length());
+	response_buffer = generate_http_response(response);
+	response_buffer += response.content_error;
+	int ret = send(response.fd, response_buffer.c_str(), response_buffer.length(), 0);
+	if (ret < 0)
+	{
+		perror("send feailed");
+		return ;
+	}
+}
 
 void	upload_exist(HttpResponse& response, std::string& upload_path)
 {
@@ -32,13 +49,13 @@ void	upload_exist(HttpResponse& response, std::string& upload_path)
 	std::string file_name;
 
 	type_rep = type_repo(upload_path);
-	if ((response.request.files.empty() && response.content.empty()) 
+	if ((response.request.files.empty() && response.request.content.empty()) 
 		|| type_rep == "is_file" || type_rep == "not found")
 	{
 		ft_send_error(500, response);
 		return ;
 	}
-	else
+	if (!response.request.files.empty())
 	{
 		for(std::vector<File>::iterator file_it = response.request.files.begin(); file_it != response.request.files.end(); file_it++)
 		{
@@ -46,19 +63,17 @@ void	upload_exist(HttpResponse& response, std::string& upload_path)
 			if(!fill_uplaod_file(response, upload_path, file_name, file_it->content))
 				return ;
 		}
-		response.path_file = "www/201.html";
-		fill_response(201, response);
-		response.content_error = read_File_error(response.path_file);
-		response.headers["content-length"] = ft_tostring(response.content_error.length());
-		response_buffer = generate_http_response(response);
-		response_buffer += response.content_error;
-		int ret = send(response.fd, response_buffer.c_str(), response_buffer.length(), 0);
-		if (ret < 0)
-		{
-			perror("send feailed");
+		send_201_response (response);
+	}
+	else if (!response.request.content.empty())
+	{
+		static int i;
+		std::string file = "file_uplad";
+		file_name = generate_filename(file, &i);
+		add_extention(file_name, response);
+		if(!fill_uplaod_file(response, upload_path, file_name, response.request.content))
 			return ;
-		}
-
+		send_201_response(response);
 	}
 }
 
@@ -128,9 +143,6 @@ int	upload_not_exist(HttpResponse& response)
 
 std::string	generate_filename(std::string &file, int *num)
 {
-	// std::string	file_name = "file";
-	// static int num = 0;
-
 	std::string num_to_str = ft_tostring((*num)++);
 	file += "_" + num_to_str;
 	return (file);
@@ -175,7 +187,7 @@ int response_post(HttpResponse& response)
 			if (*response.location_it->dir.rbegin() != '/')
 				upload_path = response.server_it->root + "/";
 			else
-			upload_path = response.server_it->root;
+				upload_path = response.server_it->root;
 		}
 		else
 		{
@@ -192,24 +204,3 @@ int response_post(HttpResponse& response)
 	}
 	return (0);
 }
-
-
-	// if ((response.request.files.empty() && !response.content.empty()))
-	// {
-	// 	std::cout << YELLOW << "-----------------------> "<< END << std::endl;
-	// 	file_name = generate_filename();
-	// 	add_extention(file_name, response);
-	// 	if(!fill_uplaod_file(response, upload_path, file_name, response.request.content))
-	// 		return ;
-	// 	// std::ofstream file(file_name);
-	// 	// 	if (file)
-	// 	// 	{
-	// 	// 		file << file_it->content.data();
-	// 	// 		if (std::rename(file_name.c_str(), destination.c_str()))
-	// 	// 		{
-	// 	// 			ft_send_error(500, response);
-	// 	// 			return ;
-	// 	// 		}
-	// 	// 	}
-	// 	// 	file.close();
-	// }
