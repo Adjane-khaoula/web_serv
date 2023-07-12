@@ -9,15 +9,16 @@ int	send_response(int fd, HttpRequest& request, HttpResponse& response, int stat
 
 		// response.out = new std::ofstream("filename.png", std::ios::binary);/////////
 		// std::cout << "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@\n";
-		// std::cout << "##############################" << std::endl;
 		init_response(response, request, fd);
+		// std::cout << "##############################" << std::endl;
 		if (new_request(request, response, status_code))
 			return (1);
 	}
 	else
 	{
 
-		std::cout << YELLOW <<  "@@@@@@@@@@@@>" << fd << END << std::endl;
+		// std::cout << YELLOW <<  "@@@@@@@@@@@@>" << fd << END << std::endl;
+		// std::cout << YELLOW << "/////&&&&&&&&&&&&&&&&&&&&&&&&" << END << std::endl;
 		read_File(response);
 		// continue_previous_response(response);
 		// std::cout << "*********************> " << response.finish_reading << std::endl;
@@ -56,6 +57,7 @@ int new_request(HttpRequest &request, HttpResponse &response, int status_code) {
 				} 
 				else
 				{
+					// std::cout << YELLOW << "/////&&&&&&&&&&&&&&&&&&&&&&&&" << END << std::endl;
 					response.headers["content-length"] = content_length;
 					response_buffer = generate_http_response(response);
 					// std::cout << "\033[33m" << "{" << response_buffer << "}" << "\033[0m"  << std::endl;

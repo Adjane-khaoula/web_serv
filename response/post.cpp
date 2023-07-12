@@ -110,14 +110,14 @@ int	upload_not_exist(HttpResponse& response)
 	return (0);
 }
 
-std::string	generate_filename()
+std::string	generate_filename(std::string &file, int *num)
 {
-	std::string	file_name = "file";
-	static int num = 0;
+	// std::string	file_name = "file";
+	// static int num = 0;
 
-	std::string num_to_str = ft_tostring(num++);
-	file_name += "_" + num_to_str;
-	return (file_name);
+	std::string num_to_str = ft_tostring((*num)++);
+	file += "_" + num_to_str;
+	return (file);
 }
 
 void	add_extention(std::string& filename, HttpResponse& response)

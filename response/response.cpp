@@ -100,8 +100,9 @@ int	response_get(HttpResponse& response)
 			else
 			{
 				fill_response(200, response);
-				execute_cgi(response);
-				return (1);
+				// std::cout << YELLOW << "@7&&&&&&&&&&&&&&&&&&&&&&&&" << END << std::endl;
+				return (execute_cgi(response));
+				// return (1);
 			}
 		}
 		else if (type_rep == "is_directory")

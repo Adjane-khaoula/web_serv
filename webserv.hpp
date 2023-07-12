@@ -112,8 +112,10 @@ class HttpResponse: public SchedulableEntity {
 		HttpRequest request;
 		int byte_reading;
 		int	fd;
+		pid_t pid;
 		std::string query_str;
 		int	url_changed;
+		std::string name_output;
 		enum SchedulableEntityTypes get_type() {
 			return RESPONSE;
 		}
@@ -172,7 +174,7 @@ std::string		get_reason_phase(int status_code);
 std::string		ft_tostring(int nbr);
 int				response_redirect(HttpResponse& response);
 int response_Http_Request(int status_code , HttpResponse& response);
-std::string	generate_filename();
+// std::string	generate_filename();
 int response_post(HttpResponse& response);
 void	add_extention(std::string& filename,HttpResponse& response);
 void	upload_exist(HttpResponse& response, std::string& upload_path);
@@ -186,10 +188,11 @@ int continue_previous_response(HttpResponse &response) ;
 void dump_request(HttpRequest &request);
 int	response_rewrite(HttpResponse&  response);
 int	response_redirect(HttpResponse& response);
-void    execute_cgi(HttpResponse &response);
+int    execute_cgi(HttpResponse &response);
 void parse_query_string(HttpResponse &response);
 // std::vector<CGI>::iterator check_extention(HttpResponse &response);
 void check_extention(HttpResponse &response);
+std::string	generate_filename(std::string &file, int *num);
 
 
 #endif // WEBSERV

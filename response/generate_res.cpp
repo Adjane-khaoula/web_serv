@@ -21,7 +21,9 @@ void init_response(HttpResponse& response, HttpRequest& request, int fd)
 	response.get_length = false;
 	response.finish_reading = false;
 	response.url_changed = false;
+	response.pid = -1;
 	response.server_it = server(response.request);
+	response.name_output = "output";
 	response.location_it = location(response.request, response.server_it);
 }
 
@@ -70,6 +72,7 @@ std::string	get_reason_phase(int status_code)
 	reason_phase[414] = "Request-URI Too Long";
 	reason_phase[500] = "Internal Server Error";
 	reason_phase[501] = "not implemented";
+	reason_phase[504] = "Gateway Timeout";
 
 	return(reason_phase[status_code]);
 }
