@@ -91,8 +91,9 @@ void	ft_send_error(int status_code, HttpResponse& response)
 	response_Http_Request_error(status_code, response);
 	response_buffer = generate_http_response(response);
 	response_buffer += response.content_error;
-	// std::cout << "response_buffer == " << response_buffer << std::endl;
-	send(response.fd, response_buffer.c_str(), response_buffer.length(), 0);
+	int ret = send(response.fd, response_buffer.c_str(), response_buffer.length(), 0);
+	if (ret < 0)
+		perror("send feiled");
 }
 
 void check_extention(HttpResponse &response)
@@ -110,4 +111,12 @@ void check_extention(HttpResponse &response)
 			break ;
 		}
 	}
+}
+
+void delete_generated_file(HttpResponse &response)
+{
+	std::vector<std::string>::iterator files_it;
+
+	for(files_it = response.file_name_genarated.begin(); files_it != response.file_name_genarated.end(); files_it++)
+		unlink((*files_it).c_str());
 }

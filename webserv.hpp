@@ -115,7 +115,8 @@ class HttpResponse: public SchedulableEntity {
 		pid_t pid;
 		std::string query_str;
 		int	url_changed;
-		std::string name_output;
+		std::vector<std::string> file_name_genarated;
+		// std::string name_output;
 		enum SchedulableEntityTypes get_type() {
 			return RESPONSE;
 		}
@@ -149,50 +150,63 @@ std::string trim(std::string s);
 std::vector<std::string> split(std::string s, std::string delimiter, unsigned int max_splits = -1);
 
 //----------------------------------------------------------------------------
-
+//iterators
 std::vector<Server>::iterator server(HttpRequest& request);
 std::vector<Location>::iterator	location(HttpRequest& req, std::vector<Server>::iterator server);
-int				check_req_line_headers(HttpRequest &request);
-void			response_Http_Request(int status_code, HttpRequest& request, HttpResponse& response, std::string path);
-void			response_Http_Request_error(int status_code, HttpResponse& response);
-std::string		res_content(int status_code, HttpResponse& response);
-std::string		read_File_error(std::string Path);
+
+//lib
 int				ft_atoi(std::string s);
-int				response_get(HttpResponse& response);
-std::string get_content_type(std::string path);
+std::string 	get_content_type(std::string path);
 std::string		type_repo(std::string path);
+int				get_path(HttpResponse& response);
+void			add_extention(std::string& filename,HttpResponse& response);
+void 			dump_request(HttpRequest &request);
+std::string		generate_filename(std::string &file, int *num);
+void 			delete_generated_file(HttpResponse &response);
+
+//read file
+void			read_File(HttpResponse& response);
+std::string		read_File_error(std::string Path);
+std::string		res_content_file(int status_code, HttpRequest& request, HttpResponse& response, std::string path);
+std::string		ft_tostring(int nbr);
+
+//read diractory
 std::string		content_dir(std::string dir,HttpResponse& response, std::vector<std::string>& content);
 int				res_content_dir(int status_code, HttpResponse& response);
-std::string		res_content_file(int status_code, HttpRequest& request, HttpResponse& response, std::string path);
-// std::string		read_File(HttpResponse& response);
-void			read_File(HttpResponse& response);
-void			ft_send_error(int status_code, HttpResponse& response);
+
+//generate response
+int 			new_request(HttpRequest &request, HttpResponse &response, int status_code);
 void			init_response(HttpResponse& response, HttpRequest& request, int fd);
+int				check_req_line_headers(HttpRequest &request);
+std::string		res_content(int status_code, HttpResponse& response);
+void			ft_send_error(int status_code, HttpResponse& response);
 void			fill_response(int status_code, HttpResponse& response);
-int				get_path(HttpResponse& response);
 std::string		get_reason_phase(int status_code);
-std::string		ft_tostring(int nbr);
+int 			response_Http_Request(int status_code , HttpResponse& response);
+void			response_Http_Request(int status_code, HttpRequest& request, HttpResponse& response, std::string path);
+
+//response
+int				send_response(int fd, HttpRequest& request, HttpResponse& response, int status_code, bool *close_connexion);
+void			response_Http_Request_error(int status_code, HttpResponse& response);
+int				response_get(HttpResponse& response);
+int 			response_post(HttpResponse& response);
+int 			response_delete(HttpResponse& response);
+void			upload_exist(HttpResponse& response, std::string& upload_path);
+int				upload_not_exist(HttpResponse& response);
+
+//redirection
 int				response_redirect(HttpResponse& response);
-int response_Http_Request(int status_code , HttpResponse& response);
-// std::string	generate_filename();
-int response_post(HttpResponse& response);
-void	add_extention(std::string& filename,HttpResponse& response);
-void	upload_exist(HttpResponse& response, std::string& upload_path);
-int			upload_not_exist(HttpResponse& response);
-int response_delete(HttpResponse& response);
-// int continue_previous_response(HttpResponse &response);
-// int new_request(HttpRequest &request);
-int	send_response(int fd, HttpRequest& request, HttpResponse& response, int status_code, bool *close_connexion);
-int new_request(HttpRequest &request, HttpResponse &response, int status_code);
-int continue_previous_response(HttpResponse &response) ;
-void dump_request(HttpRequest &request);
-int	response_rewrite(HttpResponse&  response);
-int	response_redirect(HttpResponse& response);
-int    execute_cgi(HttpResponse &response);
-void parse_query_string(HttpResponse &response);
-// std::vector<CGI>::iterator check_extention(HttpResponse &response);
-void check_extention(HttpResponse &response);
-std::string	generate_filename(std::string &file, int *num);
+int				response_rewrite(HttpResponse&  response);
+int				response_redirect(HttpResponse& response);
+
+//cgi
+int    			execute_cgi(HttpResponse &response);
+void 			parse_query_string(HttpResponse &response);
+char** 			get_env(HttpResponse& response);
+void 			check_extention(HttpResponse &response);
+void 			cgi_response_content(HttpResponse & response, std::string &name_output);
 
 
+
+// int continue_previous_response(HttpResponse &response) ;
 #endif // WEBSERV

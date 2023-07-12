@@ -8,13 +8,11 @@ std::string generate_http_response(HttpResponse &res)
 	for (std::map<std::string, std::string>::iterator it = res.headers.begin(); it != res.headers.end(); it++)
 		res_str << it->first << ": " << it->second << HTTP_DEL;
 	res_str << HTTP_DEL;
-	// res_str << res.content;
 	return res_str.str();
 }
 
 void init_response(HttpResponse& response, HttpRequest& request, int fd)
 {
-	// std::cout << "##############################" << request.url << std::endl;
 	response.fd = fd;
 	response.byte_reading = 0;
 	response.request = request;
@@ -23,7 +21,7 @@ void init_response(HttpResponse& response, HttpRequest& request, int fd)
 	response.url_changed = false;
 	response.pid = -1;
 	response.server_it = server(response.request);
-	response.name_output = "output";
+	// response.name_output = "output";
 	response.location_it = location(response.request, response.server_it);
 }
 

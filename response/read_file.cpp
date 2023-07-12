@@ -2,51 +2,65 @@
 #include "../config.hpp"
 #include <iostream>
 
-int get_path(HttpResponse& response)
+void parse_path(HttpResponse &response, std::string &root)
 {
 	std::string target = response.location_it->target;
-	std::string dir = response.location_it->dir;
-	// std::cout << YELLOW << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! = "<< response.request.url << END << std::endl;
 	std::string url = response.request.url;
+	size_t	find = url.find(target);
+
+	if (url.substr(0, find) != "" && *root.begin() != '/')
+	{
+		response.path_file = url.substr(0, find)+ "/" + root + url.substr(find + target.length(), url.find("?") - 1);
+		if (url.find("?") != std::string::npos)
+			response.query_str = url.substr(url.find("?") + 1, url.length());
+	}
+	else
+	{
+		response.path_file = url.substr(0, find) + root + url.substr(find + target.length(), url.find("?") - 1);
+		if (url.find("?") != std::string::npos)
+			response.query_str = url.substr(url.find("?") + 1, url.length());
+	}
+	// return (1);
+}
+
+int get_path(HttpResponse& response)
+{
+	// std::string target = response.location_it->target;
+	std::string dir = response.location_it->dir;
+	// std::string url = response.request.url;
 	std::string root = response.server_it->root;
 	
-	size_t	find = url.find(target);
+	// size_t	find = url.find(target);
 	if (!dir.empty())
 	{
-		if (url.substr(0, find) != "" && *dir.begin() != '/')
-		{
-			response.path_file = url.substr(0, find)+ "/" + dir + url.substr(find + target.length(), url.find("?") - 1);
-			if (url.find("?") != std::string::npos)
-			{
-				response.query_str = url.substr(url.find("?") + 1, url.length());
-				// std::cout << "\033[34m" << "query == {" << response.query_str << "}" << "\033[00m" << std::endl;
-			}
-			// response.query_str = url.substr(url.find("?") + 1, url.length());
-			// std::cout << "\033[32m" << "query == {" << url.substr(url.find("?") + 1, url.length()) << "}" << "\033[00m" << std::endl;
-		}
-		else
-		{
-			response.path_file = url.substr(0, find) + dir + url.substr(find + target.length(), url.find("?") - 1);
-			if (url.find("?") != std::string::npos)
-			{
-				response.query_str = url.substr(url.find("?") + 1, url.length());
-				// std::cout << "\033[34m" << "query == {" << response.query_str << "}" << "\033[00m" << std::endl;
-			}
-		}
+		parse_path(response, dir);
+		// if (url.substr(0, find) != "" && *dir.begin() != '/')
+		// {
+		// 	response.path_file = url.substr(0, find)+ "/" + dir + url.substr(find + target.length(), url.find("?") - 1);
+		// 	if (url.find("?") != std::string::npos)
+		// 		response.query_str = url.substr(url.find("?") + 1, url.length());
+		// }
+		// else
+		// {
+		// 	response.path_file = url.substr(0, find) + dir + url.substr(find + target.length(), url.find("?") - 1);
+		// 	if (url.find("?") != std::string::npos)
+		// 		response.query_str = url.substr(url.find("?") + 1, url.length());
+		// }
 		return (1);
 	}
 	if (!response.server_it->root.empty())
 	{
-		if (url.substr(0, find) != "" && *dir.begin() != '/')
-		{
-			response.path_file = url.substr(0, find)+ "/" + root + url.substr(find + target.length(), url.find("?") - 1);
-			response.query_str = url.substr(url.find("?") + 1, url.length());
-		}
-		else
-		{
-			response.path_file = url.substr(0, find) + root + url.substr(find + target.length(), url.find("?") - 1);
-			response.query_str = url.substr(url.find("?") + 1, url.length());
-		}
+		parse_path(response, root);
+		// if (url.substr(0, find) != "" && *dir.begin() != '/')
+		// {
+		// 	response.path_file = url.substr(0, find)+ "/" + root + url.substr(find + target.length(), url.find("?") - 1);
+		// 	response.query_str = url.substr(url.find("?") + 1, url.length());
+		// }
+		// else
+		// {
+		// 	response.path_file = url.substr(0, find) + root + url.substr(find + target.length(), url.find("?") - 1);
+		// 	response.query_str = url.substr(url.find("?") + 1, url.length());
+		// }
 		return (1);
 	}
 	ft_send_error(404, response);
@@ -79,19 +93,6 @@ std::string read_File_error(std::string Path)
 	buffer << file.rdbuf();
 	return buffer.str();
 }
-// #include <sys/types.h>
-// #include <sys/socket.h>
-// #include <fcntl.h>
-// #include <iostream>
-
-// bool isSocketValid(int socketFD) {
-//     int flags = fcntl(socketFD, F_GETFL);
-//     if (flags == -1) {
-//         // Error occurred while retrieving socket flags
-//         return false;
-//     }
-//     return true;
-// }
 
 void read_File(HttpResponse& response)
 {
@@ -122,26 +123,12 @@ void read_File(HttpResponse& response)
 			file.read(buffer.data(), chunkSize);
 			ssize_t readi = file.gcount();
 			response.content.assign(buffer.begin(), buffer.end());
-			std::cout << YELLOW <<  "***********>" << response.fd << END << std::endl;
-			// char c;
-    		// ssize_t bytesRead = recv(response.fd, &c, 1, MSG_PEEK);
-
-			// std::cout << "@@@@@@@@@@@@@@@@@ == " << bytesRead << std::endl;
-			// if(bytesRead > 0)
-			// {
-				// if (isSocketValid(response.fd))
-				// {
 			ssize_t i = send(response.fd,response.content.data(), readi, 0);
 			if(i < 0)
-				throw std::runtime_error("send feiled");
+				perror("client send file error");
+				// throw std::runtime_error("send feiled");
 			if (i > 0)
 				response.byte_reading += i;
-			// 	}
-			// 	else
-			// 	{
-			// 		std::cout << "------------------"<< std::endl;
-			// 		return ;
-			// 	}
 			// // }
 			// while (i < 0)
 			// {

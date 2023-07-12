@@ -49,7 +49,9 @@ cgi:
   => send response => done
   => parce query string replace %20 %2B + by " " => done
   => handel py script => done 
-  => handel infinit loop
+  => handel infinit loop => done
+  => handel cgi in diractory
   => handel cookies
+  => generate the content_dir.html just when i have autoindex
   => check all and clean the code
   => protection for the functions

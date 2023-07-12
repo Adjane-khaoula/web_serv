@@ -12,8 +12,14 @@ int fill_uplaod_file(HttpResponse &response, std::string &upload_path, std::stri
 		if (std::rename(file_name.c_str(), destination.c_str()))
 		{
 			ft_send_error(500, response);
+			file.close();
 			return(0);
 		}
+	}
+	else
+	{
+		ft_send_error(500, response);
+		return(0);
 	}
 	file.close();
 	return (1);
@@ -46,7 +52,13 @@ void	upload_exist(HttpResponse& response, std::string& upload_path)
 		response.headers["content-length"] = ft_tostring(response.content_error.length());
 		response_buffer = generate_http_response(response);
 		response_buffer += response.content_error;
-		send(response.fd, response_buffer.c_str(), response_buffer.length(), 0);
+		int ret = send(response.fd, response_buffer.c_str(), response_buffer.length(), 0);
+		if (ret < 0)
+		{
+			perror("send feailed");
+			return ;
+		}
+
 	}
 }
 
@@ -79,9 +91,13 @@ int	upload_not_exist(HttpResponse& response)
 				std::ofstream content("cgi.txt");
 				if (!content.is_open())
 					ft_send_error(500, response);
-				std::string str(response.request.content.begin(), response.request.content.end());
-       			content << str;
-				content.close();
+				else
+				{
+					response.file_name_genarated.push_back("cgi.txt");
+					std::string str(response.request.content.begin(), response.request.content.end());
+					content << str;
+					content.close();
+				}
     		}
 			execute_cgi(response);
 			return(0);

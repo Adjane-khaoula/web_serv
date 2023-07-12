@@ -54,7 +54,7 @@ int	res_content_dir(int status_code, HttpResponse& response)
 	(void) status_code;
 	if (content_dir(response.path_file, response, content) == "found")
 	{
-		std::cout << "response.location_it->index == " << response.location_it->index << std::endl;
+		// std::cout << "response.location_it->index == " << response.location_it->index << std::endl;
 		if (!response.location_it->index.empty())
 		{
 			if (response.request.method == "POST")

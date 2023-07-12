@@ -35,13 +35,14 @@ void cgi_response_content(HttpResponse & response, std::string &name_output)
     static int i;
     if (name_output != "output")
     {
-        std::ifstream out_file(name_output, std::ifstream::binary);
-        std::string out = "out";
-        out = generate_filename(out, &i);
-        std::ofstream file(out);
-        std::string line;
         if (response.cgi_it->file_extension == "php")
         {
+            std::ifstream out_file(name_output, std::ifstream::binary);
+            std::string out = "out";
+            out = generate_filename(out, &i);
+            std::ofstream file(out);
+            response.file_name_genarated.push_back(out);
+            std::string line;
             while(std::getline(out_file, line) && line != "\r")
             {
                 if (line.find("Content-type") != std::string::npos)
@@ -56,6 +57,8 @@ void cgi_response_content(HttpResponse & response, std::string &name_output)
                 file << line;
             }
             response.path_file = out;
+            file.close();
+            out_file.close();
         }
         else
         {
@@ -77,12 +80,10 @@ int    execute_cgi(HttpResponse &response)
             static int i;
             name_output = generate_filename(name_output, &i);
             output_fd = open(name_output.c_str(), O_WRONLY | O_CREAT | O_TRUNC, 0666);
-
+            response.file_name_genarated.push_back(name_output);///////////////////
         if (response.pid == 0)
         {
-            std::cout << "\033[32m type == " << response.cgi_it->cgi_pass << "\033[00m" << std::endl;
             std::string path = response.path_file;
-            std::cout << "\033[32m path == " << response.path_file << "\033[00m" << std::endl;
             std::string path_executable = response.cgi_it->cgi_pass;
             int input_fd  = 0;
             char **env;
@@ -99,7 +100,7 @@ int    execute_cgi(HttpResponse &response)
             }
             if (input_fd > 0 && dup2(input_fd, STDIN_FILENO) < 0) 
             {
-                std::cerr << "Error duplicating input file descriptor." << std::endl;
+                // std::cerr << "Error duplicating input file descriptor." << std::endl;
                 ft_send_error(500, response);
                 close(input_fd);
                 return (1);
@@ -107,8 +108,9 @@ int    execute_cgi(HttpResponse &response)
             close(input_fd);
             if (execve(argv[0], argv, env) < 0)
             {
-                    std::cerr << RED << "Error executing CGI script."<< END << std::endl;
+                    // std::cerr << RED << "Error executing CGI script."<< END << std::endl;
                     ft_send_error(500, response);
+                    close(output_fd);
                     return (1);
             }
         }
@@ -120,7 +122,7 @@ int    execute_cgi(HttpResponse &response)
             int result = waitpid(response.pid, &status, WNOHANG);
             if(result < 0)
             {
-                std::cerr << SKY << "waitfeailed" << END << std::endl;
+                // std::cerr << SKY << "waitfeailed" << END << std::endl;
                 ft_send_error(500, response);
                 close(output_fd);
                 return (0);
