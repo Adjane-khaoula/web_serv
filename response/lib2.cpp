@@ -93,7 +93,10 @@ void	ft_send_error(int status_code, HttpResponse& response)
 	response_buffer += response.content_error;
 	int ret = send(response.fd, response_buffer.c_str(), response_buffer.length(), 0);
 	if (ret < 0)
+	{
 		perror("send feiled");
+		// *response.close_connexion = true;
+	}
 }
 
 void check_extention(HttpResponse &response)

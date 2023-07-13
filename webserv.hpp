@@ -21,11 +21,12 @@
 #include <cassert>
 #include <fstream>
 #include <sstream>
+#include <fcntl.h>
 
 #define BACKLOG_SIZE 32
 #define HTTP_DEL "\r\n"
 #define HTTP_DEL_LEN (sizeof(HTTP_DEL) - 1)
-#define BUFF_SIZE 1000000 // 1
+#define BUFF_SIZE 6000 // 1
 
 #define WATCHL_NO_PENDING 0
 #define REQ_CONN_BROKEN -1
@@ -116,6 +117,9 @@ class HttpResponse: public SchedulableEntity {
 		std::string query_str;
 		int	url_changed;
 		std::vector<std::string> file_name_genarated;
+		std::string cookies;
+		int nbr_env;
+		// bool *close_connexion;
 		// std::string name_output;
 		enum SchedulableEntityTypes get_type() {
 			return RESPONSE;
@@ -193,6 +197,7 @@ int 			response_post(HttpResponse& response);
 int 			response_delete(HttpResponse& response);
 void			upload_exist(HttpResponse& response, std::string& upload_path);
 int				upload_not_exist(HttpResponse& response);
+int 			upload_not_exist_file(HttpResponse &response);
 
 //redirection
 int				response_redirect(HttpResponse& response);

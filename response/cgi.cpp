@@ -8,8 +8,11 @@
 char** get_env(HttpResponse& response)
 {
     std::vector<std::string> vect;
-    std::string content_length = ft_tostring(response.request.content.size());
-
+    // std::string content_length = ft_tostring(response.request.content.size());
+    std::string content_length = std::to_string(response.request.content.size());//! error in to_string
+    std::cout << BLUE << "////////////////////////////> {" << response.request.headers["Cookie"] << "}" << END << std::endl;
+    std::string str(response.request.content.begin(), response.request.content.end());
+    std::cout << SKY << "////////////////////////////> {" <<response.request.content.size()<< "}" << END << std::endl;
     vect.push_back("REQUEST_METHOD=" + response.request.method);
     vect.push_back("SCRIPT_FILENAME=" + response.path_file);
     vect.push_back("PATH_INFO=" + response.path_file);
@@ -18,11 +21,13 @@ char** get_env(HttpResponse& response)
     vect.push_back("GATEWAY_INTERFACE=CGI/1.1");
     vect.push_back("QUERY_STRING=" + response.query_str);
     vect.push_back("CONTENT_TYPE=" + response.request.headers["Content-Type"]);
+    vect.push_back("HTTP_COOKIE=" + response.request.headers["Cookie"]);
 
     char** env = new char*[vect.size() + 1];
     size_t i;
     for (i = 0; i < vect.size(); ++i)
     {
+        std::cout <<PURPLE<<  vect[i] << END<< std::endl;
         env[i] = new char[vect[i].length() + 1];
         strcpy(env[i], vect[i].c_str());
     }
@@ -45,24 +50,44 @@ void cgi_response_content(HttpResponse & response, std::string &name_output)
             std::string line;
             while(std::getline(out_file, line) && line != "\r")
             {
-                if (line.find("Content-type") != std::string::npos)
-                {
-                    int length = line.find(";") - (line.find(" ") + 1);
-                        response.headers["Content-Type"] = line.substr(line.find(" ") + 1, length);
-                }
+                int length = line.find(";") - (line.find(" ") + 1);
+                std::string key = line.substr(0,line.find(" ")-1);
+                std::string value = line.substr(line.find(" ")+1, length);
+                // if (line.find("Set-Cookie") != std::string::npos)
+                // {
+                //     key = "Set-cookie";
+                // }
+                response.headers[key] = value;
+
+                //                 if (line.find("Set-Cookie") != std::string::npos)
+                // response.headers["Set-cookie"] = line.substr(line.find(" ") + 1, length);
+                // else
+                //     response.headers["Content-Type"] = "text/html";
             }
+            //     if (line.find("Cookie") != std::string::npos && response.request.headers["Cookie"].empty())
+            //     {
+            //         int length = line.find(";") - (line.find(" ") + 1);
+            //         response.headers["Set-Cookie"] = line.substr(line.find(" ") + 1, length);
+            //     }
+            // response.headers["Cache-Control"] = "no-store, no-cache, must-revalidate";
+            // response.headers["Pragma"] = "no-cache";
+            // response.headers["X-Powered-By"] = "PHP/8.2.1";
+            // response.headers["Expires"] = "Thu, 19 Nov 1981 08:52:00 GMT";
             while (std::getline(out_file, line))
             {
                 line += "\n";
                 file << line;
             }
             response.path_file = out;
+            // response.request.headers["cookies"] = response.cookies;
+            // std::cout << YELLOW<<"{"<< response.cookies<<"}" << END<< std::endl;
+            // std::cout <<SKY <<  response.path_file << END << std::endl;
             file.close();
             out_file.close();
         }
         else
         {
-            response.headers["Content-Type"] = "text/html";
+            response.headers["Content-type"] = "text/html";
             response.path_file = name_output;
         }
     }
@@ -76,20 +101,20 @@ int    execute_cgi(HttpResponse &response)
     std::string name_output = "output";
     if (response.pid == -1)
     {
-            response.pid = fork();
-            static int i;
-            name_output = generate_filename(name_output, &i);
-            output_fd = open(name_output.c_str(), O_WRONLY | O_CREAT | O_TRUNC, 0666);
-            response.file_name_genarated.push_back(name_output);///////////////////
+        response.pid = fork();
+        static int i;
+        name_output = generate_filename(name_output, &i);
+        output_fd = open(name_output.c_str(), O_WRONLY | O_CREAT | O_TRUNC, 0666);
+        response.file_name_genarated.push_back(name_output);///////////////////
+            char **env;
+            env = get_env(response);
         if (response.pid == 0)
         {
             std::string path = response.path_file;
             std::string path_executable = response.cgi_it->cgi_pass;
             int input_fd  = 0;
-            char **env;
             if (response.request.method == "POST")
                 input_fd = open("cgi.txt", O_RDONLY , 0666);
-            env = get_env(response);
             char* const argv[] = {(char*)path_executable.c_str(), (char*)path.c_str(), NULL};
             if (dup2(output_fd, 1) == -1 || dup2(output_fd, 2) == -1) 
             {
@@ -98,6 +123,7 @@ int    execute_cgi(HttpResponse &response)
                 close(output_fd);
                 return(1);
             }
+            close(output_fd);
             if (input_fd > 0 && dup2(input_fd, STDIN_FILENO) < 0) 
             {
                 // std::cerr << "Error duplicating input file descriptor." << std::endl;
@@ -125,10 +151,14 @@ int    execute_cgi(HttpResponse &response)
                 // std::cerr << SKY << "waitfeailed" << END << std::endl;
                 ft_send_error(500, response);
                 close(output_fd);
-                return (0);
+                return (1);
             }
-            else if (result && response.pid != -1)
+            else  if (result && response.pid != -1)
+            {
+
                 cgi_response_content(response, name_output);
+
+            }
             else
             {
                 close(output_fd);

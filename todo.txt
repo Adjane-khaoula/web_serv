@@ -54,11 +54,11 @@ if / not exist path == server route
   => parce query string replace %20 %2B + by " " => done
   => handel py script => done 
   => handel infinit loop => done
+  => handel cgi in diractory => done
 
-
-  => handel cgi in diractory
-  => handel / in the end (dir: /Users/kadjane/Desktop/server_4/)
   => handel cookies
+  => handel / in the end (dir: /Users/kadjane/Desktop/server_4/)
   => generate the content_dir.html just when i have autoindex
   => check all and clean the code
   => protection for the functions
+  => handel / in the post

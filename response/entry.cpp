@@ -6,10 +6,13 @@ int	send_response(int fd, HttpRequest& request, HttpResponse& response, int stat
 	if (!request.method.empty())
 	{
 		response.old_url = request.url;
-
+		// std::cout <<YELLOW << "*******> =" << status_code << END << std::endl; 
+		// response.close_connexion = close_connexion;
 		init_response(response, request, fd);
 		if (new_request(request, response, status_code))
+		{
 			return (1);
+		}
 	}
 	else
 	{
@@ -18,7 +21,7 @@ int	send_response(int fd, HttpRequest& request, HttpResponse& response, int stat
 		{
 			if (request.headers["connection"] == "keep-alive")
 				*close_connexion = false;
-			delete_generated_file(response);//////////////////////////////////
+			// delete_generated_file(response);//////////////////////////////////
 			return (1);
 		}
 	}
@@ -34,22 +37,23 @@ int get_req(HttpResponse &response)
 	{
 		read_File(response);
 		content_length = ft_tostring(response.size_file);
-		if (response.size_file == 0)//////////////////////////////
-		{
-			ft_send_error(404, response);
-			return (1);
-		} 
-		else
-		{
+		// if (response.size_file == 0)//////////////////////////////
+		// {
+		// 	ft_send_error(404, response);
+		// 	return (1);
+		// } 
+		// else
+		// {
 			response.headers["content-length"] = content_length;
 			response_buffer = generate_http_response(response);
 			int ret = send(response.fd, response_buffer.c_str(), response_buffer.length(), 0);
 			if (ret < 0)
 			{
 				perror("send feailed");
+				// *response.close_connexion = true;
 				return (1);
 			}
-		}
+		// }
 	}
 	else
 		return (1);
@@ -64,22 +68,24 @@ int post_req(HttpResponse &response)
 	{
 		read_File(response);
 		content_length = ft_tostring(response.size_file);
-		if (response.size_file == 0)
-		{
-			ft_send_error(404, response);
-			return (1);
-		} 
-		else
-		{
+		// if (response.size_file == 0)
+		// {
+		// 	std::cout << "...........................................\n";
+		// 	ft_send_error(404, response);
+		// 	return (1);
+		// } 
+		// else
+		// {
 			response.headers["content-length"] = content_length;
 			response_buffer = generate_http_response(response);
 			int ret = send(response.fd, response_buffer.c_str(), response_buffer.length(), 0);
 			if (ret < 0)
 			{
 				perror("send feailed");
+				// *response.close_connexion = true;
 				return (1);
 			}
-		}
+		// }
 	}
 	else
 		return (1);
@@ -91,6 +97,7 @@ int new_request(HttpRequest &request, HttpResponse &response, int status_code) {
 	std::string response_buffer;
 	std::string content_length;
 
+	// std::cout <<YELLOW << "*******> =" << status_code << END << std::endl; 
 	if (!status_code)
 	{
 		status_code = check_req_line_headers(request);		

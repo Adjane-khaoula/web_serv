@@ -8,7 +8,7 @@ std::string		res_content(int status_code, HttpResponse& response)
 	{
 		if (it->error_code == status_code)
 		{
-			response.headers["Content-Type"] = get_content_type(it->page);
+			response.headers["Content-type"] = get_content_type(it->page);
 			return(read_File_error(it->page));
 		}
 	}
@@ -16,7 +16,7 @@ std::string		res_content(int status_code, HttpResponse& response)
 	{		
 		if (it->error_code == status_code)
 		{
-			response.headers["Content-Type"] = get_content_type(it->page);
+			response.headers["Content-type"] = get_content_type(it->page);
 			return (read_File_error(it->page));
 		}
 	}
@@ -38,6 +38,7 @@ int response_Http_Request(int status_code , HttpResponse& response)
 	switch (status_code)
 	{
 		case 301:
+			std::cout <<YELLOW << "@@@@@@@@@@@@@@@@@@> "  << END << std::endl;
 			if (res_content_dir(status_code, response))
 				return (1);
 			break;
@@ -84,7 +85,12 @@ int	response_get(HttpResponse& response)
 				response.headers["Location"] = response.request.url + "/";
 				response.url_changed = true;
 				std::string response_buffer = generate_http_response(response);
-				send(response.fd, response_buffer.c_str(), response_buffer.size(), 0);
+				int ret = send(response.fd, response_buffer.c_str(), response_buffer.size(), 0);
+				if (ret < 0)
+				{
+					perror("send feiled");
+					// *response.close_connexion = true;
+				}
 				return (0);
 			}
 			else if (response_Http_Request(301, response))

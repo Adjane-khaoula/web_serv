@@ -8,6 +8,7 @@ std::string generate_http_response(HttpResponse &res)
 	for (std::map<std::string, std::string>::iterator it = res.headers.begin(); it != res.headers.end(); it++)
 		res_str << it->first << ": " << it->second << HTTP_DEL;
 	res_str << HTTP_DEL;
+	std::cout << GRAY<<  res_str.str() << END << std::endl;
 	return res_str.str();
 }
 
@@ -20,6 +21,7 @@ void init_response(HttpResponse& response, HttpRequest& request, int fd)
 	response.finish_reading = false;
 	response.url_changed = false;
 	response.pid = -1;
+	// response.nbr_env = 0;
 	response.server_it = server(response.request);
 	// response.name_output = "output";
 	response.location_it = location(response.request, response.server_it);
@@ -81,5 +83,5 @@ void fill_response(int status_code, HttpResponse& response)
 	response.code = status_code;
 	response.reason_phrase = get_reason_phase(status_code);
 	response.headers["Connection"] = "keep-alive";
-	response.headers["Content-Type"] = get_content_type(response.path_file);
+	response.headers["Content-type"] = get_content_type(response.path_file);
 }
