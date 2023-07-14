@@ -8,7 +8,6 @@ std::string generate_http_response(HttpResponse &res)
 	for (std::map<std::string, std::string>::iterator it = res.headers.begin(); it != res.headers.end(); it++)
 		res_str << it->first << ": " << it->second << HTTP_DEL;
 	res_str << HTTP_DEL;
-	std::cout << GRAY<<  res_str.str() << END << std::endl;
 	return res_str.str();
 }
 
@@ -23,6 +22,7 @@ void init_response(HttpResponse& response, HttpRequest& request, int fd)
 	response.pid = -1;
 	// response.nbr_env = 0;
 	response.server_it = server(response.request);
+	// *response.close_connexion = false;
 	// response.name_output = "output";
 	response.location_it = location(response.request, response.server_it);
 }

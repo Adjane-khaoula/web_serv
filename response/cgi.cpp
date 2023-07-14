@@ -8,11 +8,8 @@
 char** get_env(HttpResponse& response)
 {
     std::vector<std::string> vect;
-    // std::string content_length = ft_tostring(response.request.content.size());
-    std::string content_length = std::to_string(response.request.content.size());//! error in to_string
-    std::cout << BLUE << "////////////////////////////> {" << response.request.headers["Cookie"] << "}" << END << std::endl;
+    std::string content_length = ft_tostring(response.request.content.size());
     std::string str(response.request.content.begin(), response.request.content.end());
-    std::cout << SKY << "////////////////////////////> {" <<response.request.content.size()<< "}" << END << std::endl;
     vect.push_back("REQUEST_METHOD=" + response.request.method);
     vect.push_back("SCRIPT_FILENAME=" + response.path_file);
     vect.push_back("PATH_INFO=" + response.path_file);
@@ -27,7 +24,6 @@ char** get_env(HttpResponse& response)
     size_t i;
     for (i = 0; i < vect.size(); ++i)
     {
-        std::cout <<PURPLE<<  vect[i] << END<< std::endl;
         env[i] = new char[vect[i].length() + 1];
         strcpy(env[i], vect[i].c_str());
     }

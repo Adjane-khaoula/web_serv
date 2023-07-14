@@ -38,7 +38,6 @@ int response_Http_Request(int status_code , HttpResponse& response)
 	switch (status_code)
 	{
 		case 301:
-			std::cout <<YELLOW << "@@@@@@@@@@@@@@@@@@> "  << END << std::endl;
 			if (res_content_dir(status_code, response))
 				return (1);
 			break;
@@ -57,10 +56,6 @@ int	response_get(HttpResponse& response)
 	
 	if (get_path(response))
 	{
-
-		// if (!response.query_str.empty())
-		// 	parse_query_string(response);
-		std::cout << "path == " << response.path_file << std::endl;
 		type_rep = type_repo(response.path_file);
 		if (type_rep == "is_file")
 		{

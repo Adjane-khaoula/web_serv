@@ -69,22 +69,16 @@ request:
 			break;
 		}
 response:
-		dump_request(request);
+		// dump_request(request);
 		// goto close_socket;
-		std::cout << "\033[32m"  << "method: " << request.method<< "\033[0m" << std::endl;
-		std::cout << "\033[32m"  << "url: " << request.url<< "\033[0m" << std::endl;
-		std::cout << "\033[32m"  << "version: " << request.version << "\033[0m" << std::endl;
-		for (std::map<std::string , std::string>::iterator it = request.headers.begin(); it != request.headers.end(); it++) {
-			std::cout << "\033[32m" << it->first << ' ' << it->second << "\033[0m" << std::endl;
-		}
+		// std::cout << "\033[32m"  << "method: " << request.method<< "\033[0m" << std::endl;
+		// std::cout << "\033[32m"  << "url: " << request.url<< "\033[0m" << std::endl;
+		// std::cout << "\033[32m"  << "version: " << request.version << "\033[0m" << std::endl;
+		// for (std::map<std::string , std::string>::iterator it = request.headers.begin(); it != request.headers.end(); it++) {
+		// 	std::cout << "\033[32m" << it->first << ' ' << it->second << "\033[0m" << std::endl;
+		// }
 		finished = send_response(fd, request, response, status_code, &close_connexion);
 		
-		// std::cout << "*********************>finished = "<< finished << std::endl;
-///////////////////////////////////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////////////////////////////
-		// finished = send_response(fd, request, response, status_code);
-		// finished = send_response(fd, request, response, status_code, &close);
-		// std::cout << close_connexion << "= " << std::endl;
 		if (finished || close_connexion) {
 			sched_unqueue_task(tasks, fd);
 			goto close_socket;

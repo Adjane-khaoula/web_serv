@@ -7,7 +7,7 @@ int	send_response(int fd, HttpRequest& request, HttpResponse& response, int stat
 	{
 		response.old_url = request.url;
 		// std::cout <<YELLOW << "*******> =" << status_code << END << std::endl; 
-		// response.close_connexion = close_connexion;
+		response.close_connexion = close_connexion;
 		init_response(response, request, fd);
 		if (new_request(request, response, status_code))
 		{
@@ -21,7 +21,7 @@ int	send_response(int fd, HttpRequest& request, HttpResponse& response, int stat
 		{
 			if (request.headers["connection"] == "keep-alive")
 				*close_connexion = false;
-			// delete_generated_file(response);//////////////////////////////////
+			delete_generated_file(response);//////////////////////////////////
 			return (1);
 		}
 	}

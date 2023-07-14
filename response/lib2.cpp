@@ -26,7 +26,7 @@ std::string	ft_tostring(int nbr)
 {
 	std::string	str;
 
-	while (nbr > 10)
+	while (nbr >= 10)
 	{
 		str.insert(0,1, static_cast<char>((nbr % 10) + '0'));
 		nbr /= 10;
