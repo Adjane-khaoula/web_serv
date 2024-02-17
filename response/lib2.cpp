@@ -1,6 +1,5 @@
 #include "../webserv.hpp"
 #include "../config.hpp"
-#include <iostream>
 
 int ft_atoi(std::string s) {
 	int					sign = 1;
@@ -32,22 +31,44 @@ std::string	ft_tostring(int nbr)
 		nbr /= 10;
 	}
 	if (nbr >= 0)
-		str.insert(0,1, static_cast<char>(nbr+ '0'));
+		str.insert(0,1, static_cast<char>(nbr + '0'));
 	return (str);
 }
 
 std::vector<Server>::iterator server(HttpRequest& request)
 {
+	std::vector<std::vector<Server>::iterator> maching;
+	std::vector<Server>::iterator it_server;
+	std::vector<std::vector<Server>::iterator>::iterator it_maching;
+	std::vector<std::string>::iterator it_server_names;
+
 	int	position = request.headers["Host"].find(":");
-	std::string ip = request.headers["Host"].substr(0, position);
-	int port = ft_atoi(request.headers["Host"].substr(position + 1, request.headers["Host"].length()));
-	for (std::vector<Server>::iterator it = config.servers.begin(); it != config.servers.end(); it++)
-		if (it->ip == ip && it->port == port)
-			return (it);
+	std::string host = request.headers["Host"].substr(0, position);
+	for (it_server = config.servers.begin(); it_server != config.servers.end(); it_server++)
+	{
+		if (it_server->__ip == request.ip && it_server->__port == request.port)
+			maching.push_back(it_server);
+	}
+	if (maching.empty())
+		die("maching.empty");
+	if (maching.size() == 1)
+		return (*maching.begin());
+	else
+	{
+		for (it_maching = maching.begin(); it_maching != maching.end(); it_maching++)
+		{
+				for (it_server_names = (*it_maching)->server_names.begin(); it_server_names != (*it_maching)->server_names.end(); it_server_names++)
+				{
+					if (*it_server_names == host)
+						return (*it_maching);
+				}
+		}
+		return (*maching.begin());
+	}
 	return (config.servers.begin());
 }
 
-std::vector<Location>::iterator location(HttpRequest& req, std::vector<Server>::iterator server)
+std::vector<Location>::iterator location(HttpRequest& req, std::vector<Server>::iterator server, HttpResponse &response)
 {
 	unsigned long	length_location(0);
 	std::vector<Location>::iterator location = server->routes.end();
@@ -64,6 +85,7 @@ std::vector<Location>::iterator location(HttpRequest& req, std::vector<Server>::
 			}
 		}
 	}
+	
 	if (location != server->routes.end() && !location->redirections.empty())
 	{
 		for (redirection_it = location->redirections.begin(); redirection_it != location->redirections.end(); redirection_it++)
@@ -75,6 +97,7 @@ std::vector<Location>::iterator location(HttpRequest& req, std::vector<Server>::
 
 				if (find_from != std::string::npos && find_to == std::string::npos)
 				{
+					response.url_changed = true;
 					req.url = req.url.substr(0,find_from) + redirection_it->to + req.url.substr((find_from + redirection_it->from.length()),req.url.length());
 					break;
 				}
@@ -82,38 +105,6 @@ std::vector<Location>::iterator location(HttpRequest& req, std::vector<Server>::
 		}
 	}
 	return (location);
-}
-
-void	ft_send_error(int status_code, HttpResponse& response)
-{
-	std::string		response_buffer;
-	
-	response_Http_Request_error(status_code, response);
-	response_buffer = generate_http_response(response);
-	response_buffer += response.content_error;
-	int ret = send(response.fd, response_buffer.c_str(), response_buffer.length(), 0);
-	if (ret < 0)
-	{
-		perror("send feiled");
-		// *response.close_connexion = true;
-	}
-}
-
-void check_extention(HttpResponse &response)
-{
-	std::string path = response.path_file;
-	std::vector<CGI>::iterator cgi_it;
-
-	response.cgi_it = response.location_it->cgi.end();
-	for (cgi_it = response.location_it->cgi.begin(); cgi_it != response.location_it->cgi.end(); cgi_it++)
-	{
-		if (path.substr(path.find_last_of(".") + 1, path.length()) == cgi_it->file_extension
-			&& (cgi_it->file_extension == "php" || cgi_it->file_extension == "py"))
-		{
-			response.cgi_it = cgi_it;
-			break ;
-		}
-	}
 }
 
 void delete_generated_file(HttpResponse &response)

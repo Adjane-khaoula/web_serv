@@ -25,40 +25,43 @@ todo:
 
 ////////////////////////////////////////////////////////////////////
 
-form data: upload files
-=> check if status_code in config = 301 or 302 else error
-=> if i do autoindex and i click in video video play then return to autoindex program exit 
-=> shoud exist one return
-=> when return have a big file program exit
-=> send me the extention of file to be posted
-=> check if the extention cgi is php or py
-=> uplod : in case of text shod parsed the content :
-    "----------------------------178924003759668761592596
-    Content-Disposition: form-data; name="text"
-    nbvc nv
-    ----------------------------178924003759668761592596--"
-
-////////////////////////////////////////////////////////////////////
-handel if i don't have / in the end of "dir: /Users/kadjane/Desktop/server_3"
-open not work 500
-#autoindex ..
-infinit redirection in => /Users/kadjane/Desktop/web_serv2/srcs/book.pdf
-add fonction delete file created
-if / not exist path == server route
+=> 501 not check_req_line_headers
+=> error headers not checked
 
 
-  => check extention => done
-  => execute script => done
-  => parse file => done
-  => send response => done
-  => parce query string replace %20 %2B + by " " => done
-  => handel py script => done 
-  => handel infinit loop => done
-  => handel cgi in diractory => done
+is it possible to serve short requests in one iteration
 
-  => handel cookies
-  => handel / in the end (dir: /Users/kadjane/Desktop/server_4/)
-  => generate the content_dir.html just when i have autoindex
-  => check all and clean the code
-  => protection for the functions
-  => handel / in the post
+TOTEST:
+test http status codes
+multip servers
+hostnames
+default error pages
+max body size
+locations to different dir
+index
+autoindex
+define certain methods for certain dirs
+test each method
+unknowen methods
+file upload using raw body or form-data
+
+simple cgi tests get/post/delete
+The CGI should be run in the correct directory for relative path file access.
+create scripts with errors/infinite loops and what not
+
+
+headers should be compatible with normal nginx
+
+
+wtf: Launch multiple servers at the same time with different configurations but with common ports. Does it work? If it does, ask why the server should work if one of the configurations isn't functional. Keep going.
+
+siege -c 100 -t 1M -b http://localhost:8080 > 99.5
+
+test cookie system
+
+multiple cgi's
+
+=> config
+	=> mathod not exist program hung
+	=>
+

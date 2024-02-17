@@ -84,11 +84,11 @@ int parse_form_data_header_vars(std::string value, std::map<std::string, std::st
 }
 
 int parse_form_data_files(HttpRequest &request) {
-	debug("files: parse_form_data_files called");
+	debug("form-data: parse_form_data_files called");
 
 	std::vector<std::string> parts = split(request.headers["Content-Type"], ";");
 	if (trim(parts[0]) != "multipart/form-data") {
-		debug("files: Content-Type != multipart/form-data");
+		debug("form-data: Content-Type != multipart/form-data");
 		return 0;
 	}
 	std::string boundary = trim(parts[1]);
@@ -100,45 +100,55 @@ int parse_form_data_files(HttpRequest &request) {
 	std::string delimiter = key_value[1];
 	std::vector<char> body = request.content;
 	std::vector<File> files;
+	std::vector<Var> form_vars;
 	std::map<std::string, std::string> headers;
 
-	debug("files: start looking for files");
+	debug("form-data: start looking for files");
 
 	while (body.size()) {
 		File f;
-		int skip = 0;
+		Var v;
+		bool is_file = false;
+		bool skip = false;
 		bool done = false;
 		std::map<std::string, std::string> vars;
 		int ret = parse_form_data_headers(body, headers, delimiter, done);
 		if (done)
 			break;
 		if (ret < 0) {
-			debug("files: bad headers");
+			debug("form-data: bad headers");
 			return -1;
 		}
 		if (!headers.count("Content-Disposition")) {
-			debug("files: unavailable header skip");
-			skip = 1;
+			debug("form-data: unavailable probably a 400 request");
+			skip = true;
 		}
 		if (parse_form_data_header_vars(headers["Content-Disposition"], vars) < 0) {
-			debug("files: parse_form_data_header_vars");
+			debug("form-data: parse_form_data_header_vars");
 			return -1;
 		}
-		if (!vars.count("filename")) {
-			debug("files: missing filename var skip");
-			skip = 1;
+		if (vars.count("filename")) {
+			debug("form-data: file found");
+			is_file = true;
 		}
-		if (parse_form_data_content(body, f.content, delimiter) < 0) {
-			debug("files: error parse_form_data_content");
+		if (parse_form_data_content(body, is_file ? f.content : v.value, delimiter) < 0) {
+			debug("form-data: error parse_form_data_content");
 			return -1;
 		}
-		if (!skip) {
-			debug("files: a file parsed successfully");
+		if (skip)
+			continue;
+		if (is_file) {
+			debug("form-data: a file parsed successfully");
 			f.name = vars["filename"];
 			files.push_back(f);
+		} else {
+			debug("form-data: a var parsed successfully");
+			v.key = vars["name"];
+			form_vars.push_back(v);
 		}
 	}
-	std::cout << "files: found " << files.size() << std::endl;
+	debug("form-data: " << files.size() << " files found | " << form_vars.size() << " var found");
 	request.files = files;
+	request.vars = form_vars;
 	return 0;
 }

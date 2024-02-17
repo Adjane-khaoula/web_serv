@@ -5,59 +5,76 @@
 #elif __linux__
 #include <sys/epoll.h>
 #endif
+#include <fcntl.h>
+#include <sstream>
+#include <netdb.h>
 
-// todo: move these functions into a separate files
-// todo: connection: keep-alive
 /**
  * spawn servers and add their sockets to watchlist
  * wait for events (connections, requests) and handle them serially
- * todo: multiple servers could use the same port
-*/
+ */
 void spawn_servers(int wfd) {
-	std::set<std::string> servers;
-	for (size_t i = 0; i < config.servers.size(); i++) {
-		servers.insert(config.servers[i].ip + ":" + std::to_string(config.servers[i].port));
+	std::vector<struct addrinfo *> servers;
+	static const int enable = 1;
+	int sock;
+
+  for (std::vector<Server>::iterator it = config.servers.begin(); it < config.servers.end(); it++) {
+	struct addrinfo hints, *res;
+	int error;
+
+	std::memset(&hints, 0, sizeof(hints));
+	hints.ai_family = PF_INET;
+	hints.ai_socktype = SOCK_STREAM;
+	error = getaddrinfo(it->config_ip.c_str(), it->config_port.c_str(), &hints, &res);
+	if (error)
+		die(gai_strerror(error));
+
+	struct sockaddr_in *cur = (struct sockaddr_in *)res->ai_addr;
+	it->__ip = cur->sin_addr.s_addr;
+	it->__port = cur->sin_port;
+	for (std::vector<struct addrinfo *>::iterator it2 = servers.begin(); it2 < servers.end(); it2++) {
+		struct sockaddr_in *target = (struct sockaddr_in *)(*it2)->ai_addr;
+		if (target->sin_addr.s_addr == it->__ip && target->sin_port == it->__port) {
+			debug("skip = server=" << it->__ip << ":" << ntohs(it->__port) << " same as server=" << target->sin_addr.s_addr << ":" << ntohs(target->sin_port));
+			freeaddrinfo(res);
+			goto skip;
+		}
 	}
-	for (std::set<std::string>::iterator it = servers.begin(); it != servers.end(); it++) {
-		int sock;
-		assert((sock = socket(PF_INET, SOCK_STREAM, 0)) != -1);
+	sock = socket(res->ai_family, res->ai_socktype, res->ai_protocol);
+	assert_msg(sock != -1, "socket: " << strerror(errno));
+	assert_msg(setsockopt(sock, SOL_SOCKET, SO_REUSEADDR, &enable, sizeof(enable)) == 0,
+		   "setsockopt: " << strerror(errno));
 
-		int enable = 1;
-		assert(setsockopt(sock, SOL_SOCKET, SO_REUSEADDR, &enable, sizeof(enable)) == 0);
+	assert_msg(bind(sock, res->ai_addr, res->ai_addrlen) == 0,
+			"two identical servers bind(" << it->config_ip.c_str() << ":" << it->config_port.c_str() << ") failed = " << strerror(errno));
 
-		std::vector<std::string> v = split(*it, ":");
-		std::string ip = v[0];
-		int port = std::stoi(v[1]);
-		struct sockaddr_in address;
-		address.sin_family = AF_INET;
-		address.sin_addr.s_addr = inet_addr(ip.c_str());
-		address.sin_port = htons(port);
-
-		assert(bind(sock, (struct sockaddr *)&address, sizeof(address)) == 0);
-
-		assert(listen(sock, BACKLOG_SIZE) == 0);
-		std::cout << "--------- " << "listening on: " << ip << ":" << port << std::endl;
-
+	assert_msg(listen(sock, BACKLOG_SIZE) == 0, "listen: " << strerror(errno));
+	debug("listening on: " << it->config_ip << ":" << it->config_port);
 #ifdef __APPLE__
-		watchlist_add_fd(wfd, sock, EVFILT_READ);
+	watchlist_add_fd(wfd, sock, EVFILT_READ);
 #elif __linux__
-		watchlist_add_fd(wfd, sock, EPOLLIN);
+	watchlist_add_fd(wfd, sock, EPOLLIN);
 #endif
-		config.max_server_fd = sock;
+	it->__fd = sock;
+	config.max_server_fd = sock;
+	servers.push_back(res);
+skip:
+	continue;
+  }
+	// cleanup
+	for (std::vector<struct addrinfo *>::iterator it = servers.begin(); it < servers.end(); it++) {
+		freeaddrinfo(*it);
 	}
 }
 
-void accept_connection(int wfd, int server) {
-	struct sockaddr_in caddress;
-	socklen_t len = sizeof caddress;
-	int client;
-	assert((client = accept(server, (struct sockaddr *)&caddress, &len)) != -1);
-	
-#ifdef __APPLE__
-		watchlist_add_fd(wfd, client, EVFILT_READ);
-#elif __linux__
-		watchlist_add_fd(wfd, client, EPOLLIN);
-#endif
+int accept_connection(int wfd, int server) {
+  struct sockaddr_in caddress;
+  socklen_t len = sizeof caddress;
+  int client = accept(server, (struct sockaddr *)&caddress, &len);
+  assert_msg(client != -1, "accept: " << strerror(errno));
+  assert_msg (fcntl(client, F_SETFL, O_NONBLOCK) >= 0, "fcntl: " << strerror(errno));
+  watchlist_insert(wfd, client);
 
-	std::cout << "--------- " << "connection received " << inet_ntoa(caddress.sin_addr) << ":" << ntohs(caddress.sin_port) << std::endl;
+  debug(GREEN << "connection received " << inet_ntoa(caddress.sin_addr) << ":" << ntohs(caddress.sin_port) << END);
+  return client;
 }

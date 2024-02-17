@@ -1,15 +1,11 @@
 #include "../webserv.hpp"
 #include "../config.hpp"
-// #include <iostream>
-// #include <fstream>
-// #include <sstream>
 
-
-int	check_req_line_headers(HttpRequest &request)
+int	check_req_line_headers(HttpRequest &request, HttpResponse &response)
 {
 	
 	std::vector<Server>::iterator server_it = server(request);
-	std::vector<Location>::iterator location_it = location(request, server_it);
+	std::vector<Location>::iterator location_it = location(request, server_it, response);
 	std::vector<std::string>::iterator methods_it;
 
 	if(location_it != server_it->routes.end())
@@ -39,7 +35,7 @@ void get_content_error(HttpResponse &response, int status_code,const std::string
 	if (response.content_error == "not found")
 	{
 		response.headers["Content-type"] = get_content_type(path);
-		response.content_error = read_File_error(path);
+		response.content_error = read_File_error(path, response);
 	}
 }
 
@@ -76,7 +72,35 @@ void response_Http_Request_error(int status_code, HttpResponse& response)
 			break ;
 		case 409:
 			get_content_error(response, status_code , std::string("www/409.html"));
+		case 504:
+			get_content_error(response, status_code , std::string("www/504.html"));
+		case 508:
+			get_content_error(response, status_code , std::string("www/508.html"));
 	}
 	response.headers["Content-Length"] = ft_tostring(response.content_error.length());
 }
 
+void	ft_send_error(int status_code, HttpResponse& response)
+{
+	std::string		response_buffer;
+	
+	*response.close_connexion = true;
+	response_Http_Request_error(status_code, response);
+	response_buffer = generate_http_response(response);
+	response_buffer += response.content_error;
+	if (check_connexion(response.fd) < 0)
+	{
+		*response.close_connexion = true;
+		return ;
+	}
+	int ret = send(response.fd, response_buffer.c_str(), response_buffer.length(), 0);
+	if (ret == 0)
+		*response.close_connexion = true;
+	else if (ret < 0)
+	{
+		*response.close_connexion = false;
+		response.finish_reading = false;
+	}
+	return ;
+
+}
